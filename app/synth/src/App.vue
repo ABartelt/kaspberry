@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAudioEngine } from './composables/useAudioEngine'
 import { useVoicePool } from './composables/useVoicePool'
 import { useSynthParams } from './composables/useSynthParams'
@@ -13,6 +13,7 @@ import { useRandomizer } from './composables/useRandomizer'
 import { midiToFreq } from './audio/lookup'
 import type { VoiceTriggerParams } from './types/synth'
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import HeaderBar from './components/HeaderBar.vue'
 import ModeSection from './components/ModeSection.vue'
 import ScaleRhythmSection from './components/ScaleRhythmSection.vue'
@@ -44,7 +45,6 @@ const { synthData } = synthParams
 const { sequencerData } = sequencer
 
 const stereoWidenerMix = ref(0)
-const activeTab = ref('oscillators')
 let lastTriggeredFreq: number | null = null
 
 // Apply default rhythm on init
@@ -294,26 +294,26 @@ function onMaxParameter(key: string) {
 
     <!-- === SYNTH PARAMETER TABS === -->
 
-    <div class="synth-tabs">
-      <div class="synth-tab-bar">
-        <button v-for="tab in synthTabs" :key="tab.id"
-          class="synth-tab-btn"
-          :class="{ 'synth-tab-btn--active': activeTab === tab.id }"
-          @click="activeTab = tab.id">
-          {{ tab.label }}
-        </button>
-      </div>
-      <div class="synth-tab-content">
-        <OscillatorsSection v-show="activeTab === 'oscillators'" :synth-data="synthData" />
-        <NoiseSection v-show="activeTab === 'noise'" :synth-data="synthData" />
-        <EnvelopeSection v-show="activeTab === 'envelope'" :synth-data="synthData" />
-        <FilterSection v-show="activeTab === 'filter'" :synth-data="synthData" />
-        <EffectsSection v-show="activeTab === 'effects'"
-          :synth-data="synthData"
-          @set-delay-type="onSetDelayType"
-        />
-      </div>
-    </div>
+    <Tabs default-value="oscillators" class="mb-1.5 border border-border-panel rounded-[var(--radius-panel)] overflow-hidden bg-bg-darker">
+      <TabsList>
+        <TabsTrigger v-for="tab in synthTabs" :key="tab.id" :value="tab.id">{{ tab.label }}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="oscillators">
+        <OscillatorsSection :synth-data="synthData" />
+      </TabsContent>
+      <TabsContent value="noise">
+        <NoiseSection :synth-data="synthData" />
+      </TabsContent>
+      <TabsContent value="envelope">
+        <EnvelopeSection :synth-data="synthData" />
+      </TabsContent>
+      <TabsContent value="filter">
+        <FilterSection :synth-data="synthData" />
+      </TabsContent>
+      <TabsContent value="effects">
+        <EffectsSection :synth-data="synthData" @set-delay-type="onSetDelayType" />
+      </TabsContent>
+    </Tabs>
 
     <RealtimeDisplay
       :current-step="sequencerData.currentStep"
@@ -356,62 +356,5 @@ function onMaxParameter(key: string) {
   padding: 2rem;
   opacity: 0.6;
   font-size: 1.2rem;
-}
-
-.synth-tabs {
-  margin-bottom: 6px;
-  border: 1px solid var(--border-panel);
-  border-radius: var(--panel-radius);
-  overflow: hidden;
-  background: var(--bg-darker);
-}
-
-.synth-tab-bar {
-  display: flex;
-  background: var(--bg-darkest);
-  border-bottom: 1px solid var(--border-panel);
-}
-
-.synth-tab-btn {
-  flex: 1;
-  min-height: 44px;
-  padding: 10px 8px;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 0;
-  border-right: 1px solid var(--border-dim);
-  background: var(--bg-darkest);
-  color: var(--text-dim);
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-}
-
-.synth-tab-btn:last-child {
-  border-right: none;
-}
-
-.synth-tab-btn:hover {
-  background: #0e0e04;
-  color: var(--amber-dim);
-}
-
-.synth-tab-btn--active {
-  background: var(--bg-darker);
-  color: var(--amber);
-  border-bottom: 2px solid var(--amber);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.synth-tab-btn--active:hover {
-  background: var(--bg-darker);
-  color: var(--amber);
-}
-
-.synth-tab-content {
-  padding: 10px;
-  background: var(--bg-darkest);
 }
 </style>

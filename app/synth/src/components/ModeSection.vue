@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { Toggle } from '@/components/ui/toggle'
+import { Slider } from '@/components/ui/slider'
+
 defineProps<{
   fastEnabled: boolean
   slowEnabled: boolean
@@ -14,27 +17,18 @@ const emit = defineEmits<{
 
 <template>
   <div class="mode-controls">
-    <button @click="$emit('toggleFast')" :class="fastEnabled ? 'stupid-btn-on' : 'stupid-btn-off'">FAST STUPID!</button>
-    <button @click="$emit('toggleSlow')" :class="slowEnabled ? 'stupid2-btn-on' : 'stupid2-btn-off'">SLOW STUPID!</button>
+    <Toggle :pressed="fastEnabled" @update:pressed="emit('toggleFast')" variant="default" size="lg" class="px-4 py-2 text-xs">FAST STUPID!</Toggle>
+    <Toggle :pressed="slowEnabled" @update:pressed="emit('toggleSlow')" variant="orange" size="lg" class="px-4 py-2 text-xs">SLOW STUPID!</Toggle>
 
     <div class="inline-control">
       <label class="section-label--amber" title="Anzahl zufälliger Parameter, die nach SLOW STUPID zurückgesetzt werden">SLOWER STUPID (0-50):</label>
-      <input type="range" min="0" max="50" :value="slowerStupidAmount" class="mode-slider" @input="$emit('updateSlowerStupid', Number(($event.target as HTMLInputElement).value))">
-      <span class="inline-value">{{ slowerStupidAmount }}</span>
+      <Slider
+        :model-value="[slowerStupidAmount]"
+        :min="0" :max="50" :step="1"
+        class="w-[100px]"
+        @update:model-value="v => emit('updateSlowerStupid', v[0])"
+      />
+      <span class="text-amber-bright text-xs font-bold min-w-[30px] text-center">{{ slowerStupidAmount }}</span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.mode-slider {
-  width: 100px;
-}
-
-.inline-value {
-  color: var(--amber-bright);
-  font-size: 12px;
-  font-weight: bold;
-  min-width: 30px;
-  text-align: center;
-}
-</style>

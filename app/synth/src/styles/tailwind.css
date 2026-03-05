@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Primary amber palette */
+  --color-amber: #eda000;
+  --color-amber-bright: #ffc830;
+  --color-amber-dim: #6b4800;
+  --color-amber-glow: rgba(237, 160, 0, 0.35);
+
+  /* Accent colors */
+  --color-orange: #e08020;
+  --color-red: #d83030;
+  --color-cyan: #00c8c8;
+  --color-green: #00d870;
+  --color-blue: #2088dd;
+  --color-magenta: #c040d0;
+  --color-noise-orange: #d85500;
+
+  /* Background scale */
+  --color-bg-dark: #111;
+  --color-bg-darker: #0a0a0a;
+  --color-bg-darkest: #050505;
+  --color-bg-black: #020202;
+
+  /* Tinted backgrounds */
+  --color-bg-green: #001e00;
+  --color-bg-green-dim: #001200;
+  --color-bg-green-highlight: #002a00;
+  --color-bg-red: #200000;
+  --color-bg-red-highlight: #3a0000;
+  --color-bg-blue: #140028;
+  --color-bg-yellow: #1e1600;
+  --color-bg-cyan: #001e1e;
+  --color-bg-orange: #1e0e00;
+
+  /* Borders */
+  --color-border-dim: #1e1e1e;
+  --color-border-panel: #282828;
+  --color-border-subtle: #1a1a1a;
+
+  /* Text */
+  --color-text-dim: #706050;
+  --color-text-dimmer: #504030;
+
+  /* Font */
+  --font-mono: 'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+
+  /* Spacing tokens */
+  --spacing-gap-xs: 3px;
+  --spacing-gap-sm: 6px;
+  --spacing-gap-md: 10px;
+  --spacing-gap-lg: 14px;
+
+  /* Radius */
+  --radius-panel: 5px;
+
+  /* shadcn semantic tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Single dark theme — no light mode, no .dark toggling */
+:root {
+  --radius: 5px;
+  --background: #0a0a0a;
+  --foreground: #eda000;
+  --card: #050505;
+  --card-foreground: #eda000;
+  --popover: #050505;
+  --popover-foreground: #eda000;
+  --primary: #eda000;
+  --primary-foreground: #000;
+  --secondary: #1e1600;
+  --secondary-foreground: #eda000;
+  --muted: #111;
+  --muted-foreground: #706050;
+  --accent: #1e1600;
+  --accent-foreground: #eda000;
+  --destructive: #d83030;
+  --border: #282828;
+  --input: #282828;
+  --ring: #6b4800;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}

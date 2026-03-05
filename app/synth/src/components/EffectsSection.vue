@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { SynthData } from '../types/synth'
 import { delayNoteValues } from '../constants/delay'
+import SynthSlider from './SynthSlider.vue'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 defineProps<{
   synthData: SynthData
@@ -15,16 +17,8 @@ const emit = defineEmits<{
   <div class="effects-grid">
     <div class="synth-section">
       <h3>REVERB</h3>
-      <div class="synth-control">
-        <label>Decay Time (0.1-5s)</label>
-        <input type="range" class="synth-slider" min="100" max="5000" :value="synthData.reverb.decayTime" @input="synthData.reverb.decayTime = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ (synthData.reverb.decayTime / 1000).toFixed(1) }}s</span>
-      </div>
-      <div class="synth-control">
-        <label>Pre-Delay (0-100ms)</label>
-        <input type="range" class="synth-slider" min="0" max="100" :value="synthData.reverb.preDelay" @input="synthData.reverb.preDelay = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ synthData.reverb.preDelay }}ms</span>
-      </div>
+      <SynthSlider label="Decay Time (0.1-5s)" :model-value="synthData.reverb.decayTime" :min="100" :max="5000" :display-value="`${(synthData.reverb.decayTime / 1000).toFixed(1)}s`" @update:model-value="v => synthData.reverb.decayTime = v" />
+      <SynthSlider label="Pre-Delay (0-100ms)" v-model="synthData.reverb.preDelay" :min="0" :max="100" display-suffix="ms" />
       <div class="synth-control">
         <label>Dry/Wet via Seq Send</label>
         <div class="hint-text">Controlled by Reverb Send</div>
@@ -35,23 +29,20 @@ const emit = defineEmits<{
       <h3>DELAY</h3>
       <div class="synth-control">
         <label>Type</label>
-        <select class="delay-type-select" :value="synthData.delay.type" @change="$emit('setDelayType', Number(($event.target as HTMLSelectElement).value))">
-          <option value="0">Classic 303 Slapback</option>
-          <option value="1">Ping-Pong Light</option>
-          <option value="2">Acid Echo</option>
-        </select>
+        <Select :model-value="String(synthData.delay.type)" @update:model-value="v => emit('setDelayType', Number(v))">
+          <SelectTrigger class="text-orange border-orange font-bold hover:bg-bg-orange">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">Classic 303 Slapback</SelectItem>
+            <SelectItem value="1">Ping-Pong Light</SelectItem>
+            <SelectItem value="2">Acid Echo</SelectItem>
+          </SelectContent>
+        </Select>
         <div class="hint-text">Different delay characters</div>
       </div>
-      <div class="synth-control">
-        <label>Time (1/128 – 1/2 Note @ BPM)</label>
-        <input type="range" class="synth-slider" min="0" max="18" step="1" :value="synthData.delay.noteValueIndex" @input="synthData.delay.noteValueIndex = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ delayNoteValues[synthData.delay.noteValueIndex]?.name }}</span>
-      </div>
-      <div class="synth-control">
-        <label>Feedback (0-95%)</label>
-        <input type="range" class="synth-slider" min="0" max="95" :value="synthData.delay.feedback" @input="synthData.delay.feedback = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ synthData.delay.feedback }}%</span>
-      </div>
+      <SynthSlider label="Time (1/128 – 1/2 Note @ BPM)" :model-value="synthData.delay.noteValueIndex" :min="0" :max="18" :display-value="delayNoteValues[synthData.delay.noteValueIndex]?.name" @update:model-value="v => synthData.delay.noteValueIndex = v" />
+      <SynthSlider label="Feedback (0-95%)" v-model="synthData.delay.feedback" :min="0" :max="95" display-suffix="%" />
       <div class="synth-control">
         <label>Dry/Wet via Seq Send</label>
         <div class="hint-text">Controlled by Delay Send</div>
@@ -60,52 +51,15 @@ const emit = defineEmits<{
 
     <div class="synth-section">
       <h3>DISTORTION</h3>
-      <div class="synth-control">
-        <label>Drive (0-100)</label>
-        <input type="range" class="synth-slider" min="0" max="100" :value="synthData.distortion.amount" @input="synthData.distortion.amount = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ synthData.distortion.amount }}</span>
-      </div>
-      <div class="synth-control">
-        <label>Tone (500-10000 Hz)</label>
-        <input type="range" class="synth-slider" min="500" max="10000" :value="synthData.distortion.tone" @input="synthData.distortion.tone = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ synthData.distortion.tone }} Hz</span>
-      </div>
+      <SynthSlider label="Drive (0-100)" v-model="synthData.distortion.amount" :min="0" :max="100" />
+      <SynthSlider label="Tone (500-10000 Hz)" :model-value="synthData.distortion.tone" :min="500" :max="10000" :display-value="`${synthData.distortion.tone} Hz`" @update:model-value="v => synthData.distortion.tone = v" />
     </div>
 
     <div class="synth-section">
       <h3>SLIDE</h3>
-      <div class="synth-control">
-        <label>Glide Time (10-250ms)</label>
-        <input type="range" class="synth-slider" min="10" max="250" :value="synthData.portamento.time" @input="synthData.portamento.time = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ synthData.portamento.time }}ms</span>
-      </div>
-      <div class="synth-control">
-        <label>Glide Curve</label>
-        <input type="range" class="synth-slider" min="1" max="30" :value="synthData.portamento.curve" @input="synthData.portamento.curve = Number(($event.target as HTMLInputElement).value)">
-        <span class="synth-value">{{ synthData.portamento.curve <= 5 ? 'Linear' : synthData.portamento.curve <= 15 ? 'Medium' : 'Exponential' }}</span>
-      </div>
+      <SynthSlider label="Glide Time (10-250ms)" v-model="synthData.portamento.time" :min="10" :max="250" display-suffix="ms" />
+      <SynthSlider label="Glide Curve" :model-value="synthData.portamento.curve" :min="1" :max="30" :display-value="synthData.portamento.curve <= 5 ? 'Linear' : synthData.portamento.curve <= 15 ? 'Medium' : 'Exponential'" @update:model-value="v => synthData.portamento.curve = v" />
       <div class="hint-text">Per Step via Slide ON/OFF</div>
     </div>
-
   </div>
 </template>
-
-<style scoped>
-.delay-type-select {
-  width: 100%;
-  height: 32px;
-  background: var(--bg-darkest);
-  color: var(--orange);
-  border: 1px solid var(--orange);
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 11px;
-  border-radius: 4px;
-  padding: 4px 8px;
-}
-
-.delay-type-select:hover {
-  background: var(--bg-orange);
-}
-
-</style>

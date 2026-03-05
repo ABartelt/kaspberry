@@ -45,188 +45,17 @@ body > div,
 }
 
 /* ======================================================================
-   BUTTONS — industrial tactile feel
-   ====================================================================== */
-
-button {
-  background: var(--bg-green);
-  color: var(--amber);
-  border: 1px solid var(--amber-dim);
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 9px;
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  transition: background 0.12s, color 0.12s, border-color 0.12s, box-shadow 0.12s;
-  touch-action: manipulation;
-}
-
-button:hover {
-  background: var(--amber);
-  color: #000;
-  border-color: var(--amber);
-}
-
-button:active {
-  transform: scale(0.97);
-  filter: brightness(0.85);
-}
-
-/* Variant: Randomize (cyan) */
-.random-btn {
-  background: var(--bg-cyan);
-  border-color: var(--cyan);
-  color: var(--cyan);
-}
-.random-btn:hover {
-  background: var(--cyan);
-  color: #000;
-  box-shadow: 0 0 8px rgba(0, 200, 200, 0.3);
-}
-
-/* Variant: Reset (amber) */
-.reset-btn {
-  background: var(--bg-yellow);
-  border-color: var(--amber-dim);
-  color: var(--amber);
-}
-.reset-btn:hover {
-  background: var(--amber);
-  color: #000;
-}
-
-/* Variant: Max (orange) */
-.max-btn {
-  background: var(--bg-orange);
-  border-color: var(--orange);
-  color: var(--orange);
-}
-.max-btn:hover {
-  background: var(--orange);
-  color: #000;
-}
-
-/* ======================================================================
-   SELECT
-   ====================================================================== */
-
-select {
-  background: var(--bg-darkest);
-  color: var(--amber);
-  border: 1px solid var(--border-panel);
-  padding: 5px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-select:hover {
-  border-color: var(--amber-dim);
-}
-
-select:focus {
-  border-color: var(--amber);
-  outline: none;
-}
-
-/* ======================================================================
-   RANGE INPUTS — base horizontal
-   ====================================================================== */
-
-input[type="range"] {
-  width: 45px;
-  height: 18px;
-  -webkit-appearance: none;
-  background: var(--bg-darkest);
-  outline: none;
-  border-radius: 4px;
-  border: 1px solid var(--border-dim);
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 18px;
-  background: var(--amber);
-  cursor: pointer;
-  border-radius: 3px;
-  border: none;
-  box-shadow: 0 0 4px var(--amber-glow);
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 12px;
-  height: 18px;
-  background: var(--amber);
-  cursor: pointer;
-  border-radius: 3px;
-  border: none;
-  box-shadow: 0 0 4px var(--amber-glow);
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 18px;
-  background: var(--bg-darkest);
-  border-radius: 4px;
-}
-
-input[type="range"]::-moz-range-track {
-  height: 18px;
-  background: var(--bg-darkest);
-  border-radius: 4px;
-  border: none;
-}
-
-/* ======================================================================
-   SYNTH SLIDERS — full-width controls in panels
-   ====================================================================== */
-
-.synth-slider {
-  width: 100%;
-  height: 20px;
-  -webkit-appearance: none;
-  background: var(--bg-black);
-  outline: none;
-  border-radius: 4px;
-  border: 1px solid var(--border-dim);
-}
-
-.synth-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px;
-  height: 20px;
-  background: linear-gradient(180deg, var(--amber-bright), var(--amber));
-  cursor: pointer;
-  border-radius: 3px;
-  box-shadow: 0 0 6px var(--amber-glow);
-}
-
-.synth-slider::-moz-range-thumb {
-  width: 14px;
-  height: 20px;
-  background: linear-gradient(180deg, var(--amber-bright), var(--amber));
-  cursor: pointer;
-  border-radius: 3px;
-  border: none;
-  box-shadow: 0 0 6px var(--amber-glow);
-}
-
-/* ======================================================================
    STEP SLIDERS — vertical sliders in sequencer cells
    ====================================================================== */
 
 .step-slider {
+  -webkit-appearance: none;
+  appearance: none;
   writing-mode: vertical-lr;
   direction: rtl;
-  -webkit-appearance: slider-vertical;
   width: 22px;
   height: 44px;
-  background: linear-gradient(180deg, var(--bg-black) 0%, #080804 100%);
+  background: linear-gradient(180deg, var(--bg-black) 0%, #080804 100%) !important;
   border: 1px solid var(--border-dim);
   border-radius: 3px;
   outline: none;
@@ -234,14 +63,26 @@ input[type="range"]::-moz-range-track {
   touch-action: none;
 }
 
+.step-slider::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
+
 .step-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 22px;
   height: 7px;
   background: linear-gradient(90deg, var(--amber-dim), var(--amber), var(--amber-dim));
   border-radius: 1px;
+  border: none;
   cursor: pointer;
   box-shadow: 0 0 5px var(--amber-glow), 0 0 1px var(--amber);
+}
+
+.step-slider::-moz-range-track {
+  background: transparent;
+  border: none;
 }
 
 .step-slider::-moz-range-thumb {
@@ -269,75 +110,6 @@ input[type="range"]::-moz-range-track {
   opacity: 1;
   color: var(--amber-bright);
   text-shadow: 0 0 4px var(--amber-glow);
-}
-
-/* ======================================================================
-   ACCORDION SECTIONS
-   ====================================================================== */
-
-.accordion-section {
-  margin-bottom: var(--gap-sm);
-  border: 1px solid var(--border-panel);
-  border-radius: var(--panel-radius);
-  overflow: hidden;
-  background: var(--bg-darker);
-}
-
-.accordion-section > summary {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--bg-darker);
-  color: var(--amber);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  min-height: 44px;
-  border-bottom: 1px solid var(--border-subtle);
-  list-style: none;
-  touch-action: manipulation;
-  transition: background 0.12s;
-}
-
-.accordion-section > summary::-webkit-details-marker {
-  display: none;
-}
-
-.accordion-section > summary::before {
-  content: '\25B8';
-  font-size: 11px;
-  transition: transform 0.2s ease;
-  display: inline-block;
-  min-width: 14px;
-  color: var(--amber-dim);
-}
-
-.accordion-section[open] > summary::before {
-  transform: rotate(90deg);
-  color: var(--amber);
-}
-
-.accordion-section > summary:hover {
-  background: #131300;
-}
-
-.accordion-section > summary:active {
-  background: #181800;
-}
-
-.accordion-section[open] > summary {
-  border-bottom-color: var(--amber-dim);
-}
-
-.accordion-section > .accordion-content {
-  padding: 10px;
-  background: var(--bg-darkest);
 }
 
 /* ======================================================================
@@ -671,16 +443,6 @@ td.locked.current-step * {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
 }
 
-.header-bar .transport-play,
-.header-bar .transport-stop {
-  padding: 8px 16px;
-  font-size: 16px;
-  min-height: 44px;
-  min-width: 44px;
-  border-radius: 5px;
-  flex-shrink: 0;
-}
-
 /* ======================================================================
    REALTIME DISPLAY — LED readout panel
    ====================================================================== */
@@ -768,103 +530,6 @@ td.locked.current-step * {
 }
 
 /* ======================================================================
-   STUPID MODE BUTTONS
-   ====================================================================== */
-
-.stupid-btn-off {
-  background: var(--bg-darkest);
-  border-color: var(--border-panel);
-  color: var(--text-dimmer);
-  font-weight: bold;
-}
-.stupid-btn-off:hover {
-  background: var(--border-panel);
-  color: var(--text-dim);
-  border-color: var(--text-dim);
-}
-
-.stupid-btn-on {
-  background: var(--bg-cyan);
-  border-color: var(--cyan);
-  color: var(--cyan);
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(0, 200, 200, 0.3);
-}
-.stupid-btn-on:hover {
-  background: var(--cyan);
-  color: #000;
-}
-
-.stupid2-btn-off {
-  background: var(--bg-darkest);
-  border-color: var(--border-panel);
-  color: var(--text-dimmer);
-  font-weight: bold;
-}
-.stupid2-btn-off:hover {
-  background: var(--border-panel);
-  color: var(--text-dim);
-  border-color: var(--text-dim);
-}
-
-.stupid2-btn-on {
-  background: var(--bg-orange);
-  border-color: var(--orange);
-  color: var(--orange);
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(224, 128, 32, 0.3);
-}
-.stupid2-btn-on:hover {
-  background: var(--orange);
-  color: #000;
-}
-
-/* ======================================================================
-   BPM SLIDER
-   ====================================================================== */
-
-.bpm-slider {
-  flex: 1;
-  min-width: 80px;
-  height: 22px;
-  -webkit-appearance: none;
-  background: var(--bg-black);
-  outline: none;
-  border-radius: 4px;
-  border: 1px solid var(--amber-dim);
-}
-
-.bpm-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 22px;
-  background: linear-gradient(180deg, var(--amber-bright), var(--amber));
-  cursor: pointer;
-  border-radius: 3px;
-  box-shadow: 0 0 6px var(--amber-glow);
-}
-
-.bpm-slider::-moz-range-thumb {
-  width: 16px;
-  height: 22px;
-  background: linear-gradient(180deg, var(--amber-bright), var(--amber));
-  cursor: pointer;
-  border-radius: 3px;
-  border: none;
-  box-shadow: 0 0 6px var(--amber-glow);
-}
-
-.bpm-value {
-  color: var(--amber-bright);
-  font-size: 20px;
-  font-weight: bold;
-  min-width: 60px;
-  text-align: center;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px var(--amber-glow);
-}
-
-/* ======================================================================
    NOISE SECTION
    ====================================================================== */
 
@@ -878,41 +543,6 @@ td.locked.current-step * {
 }
 
 /* ======================================================================
-   PRESET GRID — hardware preset buttons
-   ====================================================================== */
-
-.preset-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 5px;
-}
-
-.preset-btn {
-  min-height: 44px;
-  font-size: 13px !important;
-  padding: 8px 4px !important;
-  background: var(--bg-green-dim);
-  border: 1px solid var(--amber-dim);
-  color: var(--amber);
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: 4px;
-  letter-spacing: 1px;
-  transition: background 0.1s, color 0.1s, border-color 0.1s, box-shadow 0.1s;
-}
-
-.preset-btn:hover {
-  background: var(--amber);
-  color: #000;
-  border-color: var(--amber);
-  box-shadow: 0 0 8px var(--amber-glow);
-}
-
-.preset-btn:active {
-  transform: scale(0.96);
-}
-
-/* ======================================================================
    RANDOMIZE GRID
    ====================================================================== */
 
@@ -922,19 +552,12 @@ td.locked.current-step * {
   gap: 5px;
 }
 
-.randomize-grid button {
-  min-height: 44px;
-  font-size: 11px;
-  padding: 8px 12px;
-}
-
 /* ======================================================================
    TOP SECTIONS (no accordion) — unified panel treatment
    ====================================================================== */
 
 .mode-controls,
 .scale-rhythm-grid,
-.preset-grid,
 .randomize-grid {
   padding: 10px;
   margin-bottom: 6px;
@@ -955,12 +578,6 @@ td.locked.current-step * {
   flex-wrap: wrap;
 }
 
-.mode-controls button {
-  min-height: 44px;
-  padding: 8px 16px;
-  font-size: 12px;
-}
-
 /* ======================================================================
    SCALE / RHYTHM
    ====================================================================== */
@@ -975,60 +592,6 @@ td.locked.current-step * {
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.scale-rhythm-grid select {
-  min-height: 38px;
-  font-size: 12px;
-}
-
-/* Loop length select */
-.loop-length-select {
-  background: var(--bg-cyan);
-  border-color: var(--orange);
-  color: var(--orange);
-  font-weight: bold;
-}
-
-.loop-length-select:hover {
-  background: var(--orange);
-  color: #000;
-}
-
-/* ======================================================================
-   TOUCH-FRIENDLY
-   ====================================================================== */
-
-@media (pointer: coarse) {
-  .accordion-section > summary {
-    min-height: 48px;
-    padding: 12px 14px;
-    font-size: 13px;
-  }
-}
-
-/* ======================================================================
-   WIDENER SLIDER — green accent
-   ====================================================================== */
-
-.widener-slider-minimal::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 22px;
-  background: linear-gradient(180deg, #20ff90, var(--green));
-  cursor: pointer;
-  border-radius: 3px;
-  box-shadow: 0 0 6px rgba(0, 216, 112, 0.4);
-}
-
-.widener-slider-minimal::-moz-range-thumb {
-  width: 16px;
-  height: 22px;
-  background: linear-gradient(180deg, #20ff90, var(--green));
-  cursor: pointer;
-  border-radius: 3px;
-  border: none;
-  box-shadow: 0 0 6px rgba(0, 216, 112, 0.4);
 }
 
 /* ======================================================================
@@ -1069,14 +632,6 @@ td.locked.current-step * {
 .inline-control label {
   font-size: 10px;
   font-weight: bold;
-}
-
-.inline-control .inline-value {
-  color: var(--amber-bright);
-  font-size: 12px;
-  font-weight: bold;
-  min-width: 30px;
-  text-align: center;
 }
 
 /* ======================================================================

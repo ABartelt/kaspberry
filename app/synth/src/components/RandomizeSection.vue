@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+
 defineEmits<{
   randomizeSynth: []
   resetSynth: []
@@ -13,12 +15,12 @@ defineEmits<{
   <div class="randomize-wrapper">
     <label class="section-label section-label--cyan">RANDOMIZE:</label>
     <div class="randomize-grid">
-      <button @click="$emit('randomizeSynth')" class="random-btn">RANDOMIZE SYNTH</button>
-      <button @click="$emit('resetSynth')" class="reset-btn">RESET SYNTH</button>
-      <button @click="$emit('randomizeSequencer')" class="random-btn">RANDOMIZE SEQUENCER</button>
-      <button @click="$emit('resetSequencer')" class="reset-btn">RESET SEQUENCER</button>
-      <button @click="$emit('randomizeFX')" class="random-btn">RANDOMIZE FX</button>
-      <button @click="$emit('resetFX')" class="reset-btn">RESET FX</button>
+      <Button variant="random" size="lg" class="text-[11px] px-3" @click="$emit('randomizeSynth')">RANDOMIZE SYNTH</Button>
+      <Button variant="reset" size="lg" class="text-[11px] px-3" @click="$emit('resetSynth')">RESET SYNTH</Button>
+      <Button variant="random" size="lg" class="text-[11px] px-3" @click="$emit('randomizeSequencer')">RANDOMIZE SEQUENCER</Button>
+      <Button variant="reset" size="lg" class="text-[11px] px-3" @click="$emit('resetSequencer')">RESET SEQUENCER</Button>
+      <Button variant="random" size="lg" class="text-[11px] px-3" @click="$emit('randomizeFX')">RANDOMIZE FX</Button>
+      <Button variant="reset" size="lg" class="text-[11px] px-3" @click="$emit('resetFX')">RESET FX</Button>
     </div>
   </div>
 </template>

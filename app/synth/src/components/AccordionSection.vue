@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+
 defineProps<{
   title: string
   open?: boolean
@@ -6,10 +8,12 @@ defineProps<{
 </script>
 
 <template>
-  <details class="accordion-section" :open="open">
-    <summary>{{ title }}</summary>
-    <div class="accordion-content">
-      <slot />
-    </div>
-  </details>
+  <Accordion type="single" collapsible :default-value="open ? 'item' : undefined">
+    <AccordionItem value="item">
+      <AccordionTrigger>{{ title }}</AccordionTrigger>
+      <AccordionContent>
+        <slot />
+      </AccordionContent>
+    </AccordionItem>
+  </Accordion>
 </template>

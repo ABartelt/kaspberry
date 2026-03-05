@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { Button } from '@/components/ui/button'
 
 const emit = defineEmits<{
   loadPreset: [value: number]
@@ -31,18 +32,18 @@ function nextPage() {
   <div class="preset-wrapper">
     <div class="preset-header">
       <label class="section-label section-label--orange">PRESETS:</label>
-      <span class="page-indicator">{{ currentPage + 1 }}/{{ totalPages }}</span>
+      <span class="text-amber-dim text-[10px] font-bold tracking-[0.5px]">{{ currentPage + 1 }}/{{ totalPages }}</span>
     </div>
     <div class="preset-carousel">
-      <button class="nav-btn" :disabled="currentPage === 0" @click="prevPage">&#9664;</button>
+      <Button variant="nav" :disabled="currentPage === 0" @click="prevPage">&#9664;</Button>
       <div class="preset-slide">
-        <button v-for="p in currentPresets" :key="p.index"
-          @click="$emit('loadPreset', p.index)"
-          class="preset-btn">
+        <Button v-for="p in currentPresets" :key="p.index"
+          variant="preset"
+          @click="emit('loadPreset', p.index)">
           {{ p.label }}
-        </button>
+        </Button>
       </div>
-      <button class="nav-btn" :disabled="currentPage === totalPages - 1" @click="nextPage">&#9654;</button>
+      <Button variant="nav" :disabled="currentPage === totalPages - 1" @click="nextPage">&#9654;</Button>
     </div>
   </div>
 </template>
@@ -63,39 +64,10 @@ function nextPage() {
   margin-bottom: 6px;
 }
 
-.page-indicator {
-  color: var(--amber-dim);
-  font-size: 10px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-}
-
 .preset-carousel {
   display: flex;
   align-items: stretch;
   gap: 6px;
-}
-
-.nav-btn {
-  padding: 2px 8px;
-  font-size: 10px;
-  min-width: 28px;
-  background: var(--bg-darkest);
-  border: 1px solid var(--border-panel);
-  color: var(--amber);
-  cursor: pointer;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.nav-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.nav-btn:hover:not(:disabled) {
-  background: var(--amber);
-  color: #000;
 }
 
 .preset-slide {

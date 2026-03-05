@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SynthData } from '../types/synth'
 import { midiToNoteName, getWaveformName } from '../audio/lookup'
+import { Slider } from '@/components/ui/slider'
 
 defineProps<{
   synthData: SynthData
@@ -15,12 +16,12 @@ defineProps<{
       <div class="module-body">
         <div class="param-row">
           <span class="param-label">PITCH</span>
-          <input type="range" class="synth-slider" min="24" max="84" :value="synthData.osc1.globalPitch" @input="synthData.osc1.globalPitch = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.osc1.globalPitch]" :min="24" :max="84" :step="1" @update:model-value="v => synthData.osc1.globalPitch = v[0]" />
           <span class="param-value">{{ midiToNoteName(synthData.osc1.globalPitch) }}</span>
         </div>
         <div class="param-row">
           <span class="param-label">WAVE</span>
-          <input type="range" class="synth-slider" min="0" max="100" :value="synthData.osc1.waveform" @input="synthData.osc1.waveform = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.osc1.waveform]" :min="0" :max="100" :step="1" @update:model-value="v => synthData.osc1.waveform = v[0]" />
           <span class="param-value">{{ getWaveformName(synthData.osc1.waveform) }}</span>
         </div>
       </div>
@@ -32,12 +33,12 @@ defineProps<{
       <div class="module-body">
         <div class="param-row">
           <span class="param-label">OFFSET</span>
-          <input type="range" class="synth-slider" min="-12" max="12" :value="synthData.osc2.offset" @input="synthData.osc2.offset = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.osc2.offset]" :min="-12" :max="12" :step="1" @update:model-value="v => synthData.osc2.offset = v[0]" />
           <span class="param-value">{{ synthData.osc2.offset > 0 ? '+' : '' }}{{ synthData.osc2.offset }}</span>
         </div>
         <div class="param-row">
           <span class="param-label">WAVE</span>
-          <input type="range" class="synth-slider" min="0" max="100" :value="synthData.osc2.waveform" @input="synthData.osc2.waveform = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.osc2.waveform]" :min="0" :max="100" :step="1" @update:model-value="v => synthData.osc2.waveform = v[0]" />
           <span class="param-value">{{ getWaveformName(synthData.osc2.waveform) }}</span>
         </div>
       </div>
@@ -49,7 +50,7 @@ defineProps<{
       <div class="module-body">
         <div class="param-row">
           <span class="param-label">OSC1 &#8596; OSC2</span>
-          <input type="range" class="synth-slider" min="-63" max="63" :value="synthData.oscMixer" @input="synthData.oscMixer = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.oscMixer]" :min="-63" :max="63" :step="1" @update:model-value="v => synthData.oscMixer = v[0]" />
           <span class="param-value">{{ synthData.oscMixer }}</span>
         </div>
       </div>
@@ -61,17 +62,17 @@ defineProps<{
       <div class="module-body">
         <div class="param-row">
           <span class="param-label">LEVEL</span>
-          <input type="range" class="synth-slider" min="0" max="100" :value="synthData.sub.level" @input="synthData.sub.level = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.sub.level]" :min="0" :max="100" :step="1" @update:model-value="v => synthData.sub.level = v[0]" />
           <span class="param-value">{{ synthData.sub.level }}%</span>
         </div>
         <div class="param-row">
           <span class="param-label">OCTAVE</span>
-          <input type="range" class="synth-slider" min="-2" max="0" step="1" :value="synthData.sub.octave" @input="synthData.sub.octave = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.sub.octave]" :min="-2" :max="0" :step="1" @update:model-value="v => synthData.sub.octave = v[0]" />
           <span class="param-value">{{ synthData.sub.octave }}</span>
         </div>
         <div class="param-row">
           <span class="param-label">WAVE</span>
-          <input type="range" class="synth-slider" min="0" max="100" :value="synthData.sub.waveform" @input="synthData.sub.waveform = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.sub.waveform]" :min="0" :max="100" :step="1" @update:model-value="v => synthData.sub.waveform = v[0]" />
           <span class="param-value">{{ getWaveformName(synthData.sub.waveform) }}</span>
         </div>
       </div>
@@ -83,12 +84,12 @@ defineProps<{
       <div class="module-body">
         <div class="param-row">
           <span class="param-label">VOICES</span>
-          <input type="range" class="synth-slider" min="1" max="3" step="1" :value="synthData.unison.voices" @input="synthData.unison.voices = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.unison.voices]" :min="1" :max="3" :step="1" @update:model-value="v => synthData.unison.voices = v[0]" />
           <span class="param-value">{{ synthData.unison.voices === 1 ? 'OFF' : synthData.unison.voices }}</span>
         </div>
         <div class="param-row">
           <span class="param-label">DETUNE</span>
-          <input type="range" class="synth-slider" min="0" max="50" :value="synthData.unison.detune" @input="synthData.unison.detune = Number(($event.target as HTMLInputElement).value)">
+          <Slider :model-value="[synthData.unison.detune]" :min="0" :max="50" :step="1" @update:model-value="v => synthData.unison.detune = v[0]" />
           <span class="param-value">{{ synthData.unison.detune }}c</span>
         </div>
       </div>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Slider } from '@/components/ui/slider'
+
 const props = withDefaults(defineProps<{
   label: string
   modelValue: number
@@ -16,18 +18,21 @@ const emit = defineEmits<{
   'update:modelValue': [value: number]
 }>()
 
-function onInput(e: Event) {
-  const val = Number((e.target as HTMLInputElement).value)
-  emit('update:modelValue', val)
+function onUpdate(val: number[]) {
+  emit('update:modelValue', val[0])
 }
 </script>
 
 <template>
   <div class="synth-control">
     <label>{{ label }}</label>
-    <input type="range" class="synth-slider"
-      :min="min" :max="max" :step="step" :value="modelValue"
-      @input="onInput">
+    <Slider
+      :model-value="[modelValue]"
+      :min="min"
+      :max="max"
+      :step="step"
+      @update:model-value="onUpdate"
+    />
     <span class="synth-value">{{ displayValue ?? `${modelValue}${displaySuffix}` }}</span>
   </div>
 </template>

@@ -4,7 +4,7 @@
 
 set -e
 
-KIOSK_URL="file:///home/kiosk/app/synth/dist/index.html"
+KIOSK_URL="file:///home/kiosk/app/index.html"
 
 # Clean up Chromium crash flags to prevent "restore session" prompts
 CHROMIUM_DIR="/home/kiosk/.config/chromium"
@@ -33,6 +33,7 @@ xinit /bin/bash -c "
     # Launch Chromium in kiosk mode
     chromium-browser \
         --kiosk \
+        --allow-file-access-from-files \
         --noerrdialogs \
         --disable-infobars \
         --disable-translate \
