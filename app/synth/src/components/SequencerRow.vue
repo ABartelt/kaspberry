@@ -64,28 +64,29 @@ function onInput(stepIndex: number, e: Event) {
 .ctrl-group {
   display: flex;
   gap: 0;
+  justify-content: center;
 }
 
 .ctrl-btn {
-  padding: 4px 6px;
-  font-size: 8px;
+  padding: 3px 5px;
+  font-size: 9px;
   min-height: 0;
   min-width: 0;
   line-height: 1;
   border-radius: 0;
-  border: 1px solid var(--border-panel);
-  background: var(--bg-darkest);
-  color: var(--text-dim);
+  border: 1px solid #1a1a1a;
+  background: #080808;
+  color: var(--text-dimmer);
   cursor: pointer;
-  transition: background 0.1s, color 0.1s;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
 }
 
 .ctrl-btn:first-child {
-  border-radius: 3px 0 0 3px;
+  border-radius: 2px 0 0 2px;
 }
 
 .ctrl-btn:last-child {
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 2px 2px 0;
 }
 
 .ctrl-btn + .ctrl-btn {
@@ -101,10 +102,11 @@ function onInput(stepIndex: number, e: Event) {
   background: var(--bg-cyan);
   color: var(--cyan);
   border-color: var(--cyan);
+  box-shadow: 0 0 4px rgba(0, 200, 200, 0.2);
 }
 
 .ctrl-btn--reset:hover {
-  background: var(--bg-red);
+  background: #0a0000;
   color: var(--red);
   border-color: var(--red);
 }
@@ -116,6 +118,6 @@ function onInput(stepIndex: number, e: Event) {
 }
 
 .step-value--locked {
-  color: #cc4444 !important;
+  color: #993333 !important;
 }
 </style>

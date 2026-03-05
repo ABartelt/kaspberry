@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import type { StepData } from '../types/synth'
 import { parameters } from '../constants/parameters'
+
+// Filter out toggle params — Slide has its own dedicated row
+const sliderParams = computed(() => parameters.filter(p => !p.isToggle))
 import SequencerRow from './SequencerRow.vue'
 import SlideRow from './SlideRow.vue'
 
@@ -51,17 +54,22 @@ onMounted(() => nextTick(() => highlightStep(props.currentStep)))
     <table class="sequencer-table">
       <thead>
         <tr>
-          <th>Parameter</th>
-          <th>Controls</th>
-          <th v-for="s in 32" :key="s" class="step-header">
-            STEP {{ s }}<br>
-            <button class="random-btn" @click="$emit('randomizeStep', s - 1)">&#8634;</button>
+          <th class="th-param"></th>
+          <th class="th-ctrl"></th>
+          <th v-for="s in 32" :key="s" class="step-header"
+            :class="[
+              (s - 1) % 4 === 0 ? 'beat-start' : '',
+              s === 16 ? 'bar-end' : '',
+              s === 17 ? 'bar-start' : '',
+            ]">
+            <span class="step-num">{{ s }}</span>
+            <button class="step-rnd" @click="$emit('randomizeStep', s - 1)" title="Randomize step">&#9733;</button>
           </th>
         </tr>
       </thead>
       <tbody>
         <SequencerRow
-          v-for="param in parameters"
+          v-for="param in sliderParams"
           :key="param.key"
           :param="param"
           :steps="steps"

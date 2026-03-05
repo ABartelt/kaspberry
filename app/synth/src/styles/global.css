@@ -224,42 +224,51 @@ input[type="range"]::-moz-range-track {
   writing-mode: vertical-lr;
   direction: rtl;
   -webkit-appearance: slider-vertical;
-  width: 18px;
-  height: 36px;
-  background: var(--bg-black);
+  width: 22px;
+  height: 44px;
+  background: linear-gradient(180deg, var(--bg-black) 0%, #080804 100%);
   border: 1px solid var(--border-dim);
   border-radius: 3px;
   outline: none;
   cursor: pointer;
+  touch-action: none;
 }
 
 .step-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 8px;
-  background: var(--amber);
-  border-radius: 2px;
+  width: 22px;
+  height: 7px;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber), var(--amber-dim));
+  border-radius: 1px;
   cursor: pointer;
-  box-shadow: 0 0 3px var(--amber-glow);
+  box-shadow: 0 0 5px var(--amber-glow), 0 0 1px var(--amber);
 }
 
 .step-slider::-moz-range-thumb {
-  width: 18px;
-  height: 8px;
-  background: var(--amber);
-  border-radius: 2px;
+  width: 22px;
+  height: 7px;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber), var(--amber-dim));
+  border-radius: 1px;
   cursor: pointer;
   border: none;
-  box-shadow: 0 0 3px var(--amber-glow);
+  box-shadow: 0 0 5px var(--amber-glow), 0 0 1px var(--amber);
 }
 
 .step-value {
   color: var(--amber);
-  font-size: 8px;
+  font-size: 7px;
   font-weight: bold;
   line-height: 1;
-  margin-top: 2px;
-  opacity: 0.85;
+  margin-top: 1px;
+  opacity: 0.7;
+  letter-spacing: -0.3px;
+}
+
+/* Value glow on current step */
+.current-step .step-value {
+  opacity: 1;
+  color: var(--amber-bright);
+  text-shadow: 0 0 4px var(--amber-glow);
 }
 
 /* ======================================================================
@@ -419,87 +428,192 @@ input[type="range"]::-moz-range-track {
   border: 1px solid var(--border-panel);
   border-radius: var(--panel-radius);
   background: var(--bg-black);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .sequencer-table {
-  width: auto;
+  width: 100%;
   border-collapse: collapse;
   background: var(--bg-black);
-  table-layout: auto;
+  table-layout: fixed;
   white-space: nowrap;
 }
 
+/* ---- Header row ---- */
+
 .sequencer-table th {
-  background: var(--bg-green-dim);
-  color: var(--amber);
-  padding: 6px 3px;
-  border: 1px solid var(--border-dim);
-  font-size: 8px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
+  background: #060606;
+  color: var(--text-dim);
+  padding: 4px 1px;
+  border: 1px solid var(--border-subtle);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.sequencer-table td {
-  border: 1px solid var(--border-subtle);
-  padding: 4px 2px;
-  text-align: center;
-  background: var(--bg-darkest);
-  transition: background 0.08s;
+.sequencer-table .th-param {
+  width: 78px;
+  background: #060606;
 }
 
-.sequencer-table tr:hover td {
-  background: #0a0a02;
+.sequencer-table .th-ctrl {
+  width: 58px;
+  background: #060606;
 }
+
+.step-header {
+  vertical-align: middle;
+  border-bottom: 2px solid var(--border-dim) !important;
+}
+
+.step-header .step-num {
+  display: block;
+  font-size: 8px;
+  color: var(--text-dimmer);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Downbeat numbers are brighter */
+.step-header.beat-start .step-num {
+  color: var(--amber-dim);
+  font-weight: bold;
+}
+
+.step-header .step-rnd {
+  display: block;
+  margin: 2px auto 0;
+  padding: 0;
+  width: 16px;
+  height: 14px;
+  font-size: 8px;
+  line-height: 14px;
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--border-dim);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-dimmer);
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+
+.step-header .step-rnd:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: var(--bg-cyan);
+}
+
+/* ---- Data cells ---- */
+
+.sequencer-table td {
+  border: 1px solid #111;
+  padding: 3px 1px;
+  text-align: center;
+  background: var(--bg-darkest);
+}
+
+/* Beat group B — subtle alternating background for visual rhythm */
+.sequencer-table td:nth-child(8n+7),
+.sequencer-table td:nth-child(8n+8),
+.sequencer-table td:nth-child(8n+9),
+.sequencer-table td:nth-child(8n+10),
+.sequencer-table th:nth-child(8n+7),
+.sequencer-table th:nth-child(8n+8),
+.sequencer-table th:nth-child(8n+9),
+.sequencer-table th:nth-child(8n+10) {
+  background: #070707;
+}
+
+/* Beat separator — stronger border every 4 steps */
+.sequencer-table td:nth-child(4n+6),
+.sequencer-table th:nth-child(4n+6) {
+  border-right: 2px solid var(--border-panel);
+}
+
+/* Bar line — prominent divider between bar 1 (steps 1-16) and bar 2 (steps 17-32) */
+.sequencer-table td:nth-child(18),
+.sequencer-table th:nth-child(18) {
+  border-right: 2px solid var(--amber-dim) !important;
+}
+
+/* ---- Parameter name + controls (frozen left) ---- */
 
 .param-name {
   color: var(--amber);
   font-weight: bold;
   text-align: left;
-  padding-left: 6px !important;
-  min-width: 90px;
-  font-size: 9px;
-  letter-spacing: 0.3px;
+  padding: 3px 4px 3px 6px !important;
+  width: 78px;
+  font-size: 8px;
+  letter-spacing: 0.2px;
   white-space: nowrap;
-  background: var(--bg-darker) !important;
-  border-right-color: var(--border-panel) !important;
-}
-
-.param-controls {
-  background: var(--bg-darker) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #080808 !important;
   border-right: 1px solid var(--border-panel) !important;
 }
 
-.step-header {
-  background: var(--bg-green-dim) !important;
-  font-weight: bold;
+.param-controls {
+  width: 58px;
+  background: #080808 !important;
+  border-right: 2px solid var(--border-panel) !important;
+  padding: 2px 3px !important;
 }
 
-/* Current step — warm amber glow */
+/* ---- Current step — playhead ---- */
+
 .current-step {
   background: var(--bg-green-highlight) !important;
-  box-shadow: inset 0 0 12px var(--amber-glow);
+  border-top: 2px solid var(--amber) !important;
+  box-shadow: inset 0 3px 8px var(--amber-glow);
 }
 
-/* Locked cells (rhythm) */
+/* ---- Locked cells (rhythm) ---- */
+
 td.rhythm-locked,
 td.locked {
-  background: var(--bg-red) !important;
-  border-color: #2a0000 !important;
+  background: #0c0000 !important;
+  border-color: #1a0000 !important;
 }
 
 td.rhythm-locked *,
 td.locked * {
-  color: #cc4444 !important;
+  color: #993333 !important;
+}
+
+td.rhythm-locked .step-slider,
+td.locked .step-slider {
+  opacity: 0.5;
 }
 
 td.rhythm-locked.current-step,
 td.locked.current-step {
-  background: var(--bg-red-highlight) !important;
-  box-shadow: inset 0 0 10px rgba(216, 48, 48, 0.4) !important;
+  background: #1a0505 !important;
+  border-top: 2px solid var(--red) !important;
+  box-shadow: inset 0 3px 8px rgba(216, 48, 48, 0.25) !important;
+}
+
+td.locked.current-step * {
+  color: #cc4444 !important;
+}
+
+/* ---- Row hover ---- */
+
+.sequencer-table tbody tr:hover > td:not(.param-name):not(.param-controls) {
+  background: #0a0a03;
+}
+
+/* Override for beat group B on hover */
+.sequencer-table tbody tr:hover > td:nth-child(8n+7),
+.sequencer-table tbody tr:hover > td:nth-child(8n+8),
+.sequencer-table tbody tr:hover > td:nth-child(8n+9),
+.sequencer-table tbody tr:hover > td:nth-child(8n+10) {
+  background: #0b0b04;
 }
 
 .value-display-cell {

@@ -30,30 +30,37 @@ const emit = defineEmits<{
 <style scoped>
 .slide-toggle {
   width: 100%;
-  padding: 5px 2px;
-  font-size: 8px;
+  padding: 4px 1px;
+  font-size: 7px;
   font-weight: bold;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 2px;
   letter-spacing: 0.5px;
-  transition: background 0.1s, color 0.1s;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
   text-transform: uppercase;
+  touch-action: manipulation;
 }
 
 .slide-toggle--on {
-  background: var(--bg-green);
+  background: #001a00;
   color: var(--green);
-  border: 1px solid var(--green);
+  border: 1px solid #004400;
+  box-shadow: 0 0 3px rgba(0, 216, 112, 0.15);
+}
+
+.slide-toggle--on:hover {
+  background: var(--bg-green);
+  border-color: var(--green);
 }
 
 .slide-toggle--off {
-  background: var(--bg-red);
-  color: #883333;
-  border: 1px solid #331111;
+  background: transparent;
+  color: #442222;
+  border: 1px solid #1a0a0a;
 }
 
 .slide-toggle--off:hover {
-  border-color: #664444;
-  color: #aa4444;
+  border-color: #442222;
+  color: #884444;
 }
 </style>
