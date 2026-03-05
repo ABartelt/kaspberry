@@ -1,0 +1,25 @@
+[Unit]
+Description=Kiosk Browser
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=simple
+User=kiosk
+Group=kiosk
+PAMName=login
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+
+# Needed for X11 access
+Environment=XDG_RUNTIME_DIR=/run/user/1001
+Environment=HOME=/home/kiosk
+
+ExecStart=/home/kiosk/scripts/kiosk.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

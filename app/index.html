@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TB-303 Synthesizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00ff00;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0f0f1e;
+            border: 3px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff00;
+            font-size: 2.5em;
+        }
+        
+        .panel {
+            background: #1a1a2e;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-shadow: 0 0 5px #00ffff;
+        }
+        
+        .control-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .control {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 0.9em;
+            color: #00ff00;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #00ff00;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #00ff00;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px #00ff00;
+            border: none;
+        }
+        
+        .value-display {
+            font-size: 0.8em;
+            color: #00ffff;
+            text-align: right;
+        }
+        
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            background: #00ffff;
+            box-shadow: 0 0 15px #00ff00;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .sequencer {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .step {
+            background: #1a1a2e;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-align: center;
+        }
+        
+        .step.active {
+            background: #00ff00;
+            border-color: #00ff00;
+            color: #000;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .step.accent {
+            background: #ff6600;
+            border-color: #ff6600;
+            box-shadow: 0 0 10px #ff6600;
+        }
+        
+        .step.active.accent {
+            background: #ffff00;
+            border-color: #ffff00;
+            box-shadow: 0 0 15px #ffff00;
+        }
+        
+        .step.playing {
+            background: #ff00ff;
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+        
+        .step-number {
+            font-size: 0.7em;
+            margin-bottom: 5px;
+        }
+        
+        .note-select {
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 2px;
+            font-size: 0.7em;
+            width: 100%;
+            border-radius: 3px;
+            margin-bottom: 3px;
+        }
+        
+        .accent-check {
+            font-size: 0.7em;
+            margin-top: 3px;
+        }
+        
+        .accent-check input {
+            margin-right: 3px;
+        }
+        
+        select {
+            background: #000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .transport {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .playing-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.2s;
+        }
+        
+        .playing-indicator.active {
+            background: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TB-303 SYNTHESIZER</h1>
+        
+        <!-- Oszillatoren -->
+        <div class="panel">
+            <h2>⚡️ OSZILLATOREN</h2>
+            <div style="color: #00ffff; font-size: 0.85em; margin-bottom: 10px; padding: 8px; background: rgba(0, 255, 255, 0.1); border-radius: 5px;">
+                💡 <strong>16-stimmige Polyphonie</strong> - Noten werden niemals abrupt abgebrochen, sondern klingen sanft aus
+            </div>
+            <div class="control-group">
+                <div class="control">
+                    <label>OSC 1 Wellenform (Sin → Tri → Saw)</label>
+                    <input type="range" id="osc1Wave" min="0" max="100" value="0">
+                    <span class="value-display" id="osc1WaveVal">Sinus</span>
+                </div>
+                <div class="control">
+                    <label>OSC 1 Lautstärke</label>
+                    <input type="range" id="osc1Vol" min="0" max="100" value="80">
+                    <span class="value-display" id="osc1VolVal">80%</span>
+                </div>
+                <div class="control">
+                    <label>OSC 2 Wellenform (Sin → Tri → Saw)</label>
+                    <input type="range" id="osc2Wave" min="0" max="100" value="50">
+                    <span class="value-display" id="osc2WaveVal">Dreieck</span>
+                </div>
+                <div class="control">
+                    <label>OSC 2 Lautstärke</label>
+                    <input type="range" id="osc2Vol" min="0" max="100" value="60">
+                    <span class="value-display" id="osc2VolVal">60%</span>
+                </div>
+                <div class="control">
+                    <label>OSC 2 Detune (Verstimmung)</label>
+                    <input type="range" id="osc2Detune" min="-50" max="50" value="0">
+                    <span class="value-display" id="osc2DetuneVal">0 ct</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ADSR Envelope -->
+        <div class="panel">
+            <h2>📊 ADSR ENVELOPE</h2>
+            <div class="control-group">
+                <div class="control">
+                    <label>Attack</label>
+                    <input type="range" id="attack" min="0.001" max="1" step="0.001" value="0.005">
+                    <span class="value-display" id="attackVal">0.005 s</span>
+                </div>
+                <div class="control">
+                    <label>Decay</label>
+                    <input type="range" id="decay" min="0.01" max="2" step="0.01" value="0.3">
+                    <span class="value-display" id="decayVal">0.30 s</span>
+                </div>
+                <div class="control">
+                    <label>Sustain</label>
+                    <input type="range" id="sustain" min="0" max="100" value="40">
+                    <span class="value-display" id="sustainVal">40%</span>
+                </div>
+                <div class="control">
+                    <label>Release</label>
+                    <input type="range" id="release" min="0.01" max="2" step="0.01" value="0.1">
+                    <span class="value-display" id="releaseVal">0.10 s</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter -->
+        <div class="panel">
+            <h2>🎛 FILTER</h2>
+            <div class="control-group">
+                <div class="control">
+                    <label>Cutoff Frequenz</label>
+                    <input type="range" id="cutoff" min="50" max="5000" value="1500">
+                    <span class="value-display" id="cutoffVal">1500 Hz</span>
+                </div>
+                <div class="control">
+                    <label>Resonanz</label>
+                    <input type="range" id="resonance" min="0" max="30" value="10">
+                    <span class="value-display" id="resonanceVal">10</span>
+                </div>
+                <div class="control">
+                    <label>Filter Envelope Amount</label>
+                    <input type="range" id="envAmount" min="0" max="5000" value="2000">
+                    <span class="value-display" id="envAmountVal">2000</span>
+                </div>
+                <div class="control">
+                    <label>Accent Amount</label>
+                    <input type="range" id="accentAmount" min="0" max="100" value="50">
+                    <span class="value-display" id="accentAmountVal">50%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Effekte -->
+        <div class="panel">
+            <h2>🎸 EFFEKTE</h2>
+            <div class="control-group">
+                <div class="control">
+                    <label>Distortion</label>
+                    <input type="range" id="distortion" min="0" max="100" value="0">
+                    <span class="value-display" id="distortionVal">0</span>
+                </div>
+                <div class="control">
+                    <label>Delay Time</label>
+                    <input type="range" id="delayTime" min="0" max="1" step="0.01" value="0.25">
+                    <span class="value-display" id="delayTimeVal">0.25 s</span>
+                </div>
+                <div class="control">
+                    <label>Delay Feedback</label>
+                    <input type="range" id="delayFeedback" min="0" max="90" value="30">
+                    <span class="value-display" id="delayFeedbackVal">30%</span>
+                </div>
+                <div class="control">
+                    <label>Reverb</label>
+                    <input type="range" id="reverb" min="0" max="100" value="20">
+                    <span class="value-display" id="reverbVal">20%</span>
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="randomizeSynth()">🎲 Zufall: Synth-Parameter</button>
+            </div>
+        </div>
+        
+        <!-- Sequencer -->
+        <div class="panel">
+            <h2>🎹 SEQUENCER (32 Steps)</h2>
+            
+            <div class="control-group">
+                <div class="control">
+                    <label>Tonart / Skala</label>
+                    <select id="scale">
+                        <option value="chromatic">Chromatisch</option>
+                        <option value="major" selected>Dur</option>
+                        <option value="minor">Moll</option>
+                        <option value="dorian">Dorisch</option>
+                        <option value="phrygian">Phrygisch</option>
+                        <option value="lydian">Lydisch</option>
+                        <option value="mixolydian">Mixolydisch</option>
+                        <option value="pentatonic">Pentatonisch</option>
+                        <option value="blues">Blues</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label>Grundton</label>
+                    <select id="rootNote">
+                        <option value="0">C</option>
+                        <option value="1">C#</option>
+                        <option value="2">D</option>
+                        <option value="3">D#</option>
+                        <option value="4">E</option>
+                        <option value="5">F</option>
+                        <option value="6">F#</option>
+                        <option value="7">G</option>
+                        <option value="8">G#</option>
+                        <option value="9">A</option>
+                        <option value="10">A#</option>
+                        <option value="11">B</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label>Tempo (BPM)</label>
+                    <input type="range" id="tempo" min="60" max="200" value="120">
+                    <span class="value-display" id="tempoVal">120 BPM</span>
+                </div>
+            </div>
+            
+            <h3 style="color: #00ffff; margin: 15px 0 10px 0;">Steps 1-16</h3>
+            <div class="sequencer" id="sequencer1"></div>
+            
+            <h3 style="color: #00ffff; margin: 15px 0 10px 0;">Steps 17-32</h3>
+            <div class="sequencer" id="sequencer2"></div>
+            
+            <div class="button-group">
+                <button onclick="randomizeSequencer()">🎲 Zufall: Acid-Pattern generieren</button>
+                <button onclick="clearSequencer()">🗑 Pattern löschen</button>
+            </div>
+            
+            <div class="transport">
+                <div class="playing-indicator" id="playIndicator"></div>
+                <button onclick="togglePlay()" id="playBtn">▶️ PLAY</button>
+                <button onclick="stopSequencer()">⏹️ STOP</button>
+                <div style="margin-left: 20px; color: #00ffff; font-size: 0.9em;">
+                    Aktive Stimmen: <span id="voiceCount" style="color: #00ff00; font-weight: bold;">0</span> / 16
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Audio Context
+        let audioCtx;
+        let masterGain;
+        let filter;
+        let distortionNode;
+        let delayNode;
+        let delayFeedback;
+        let convolver;
+        let dryGain, wetGain;
+        
+        // Voice Management
+        const MAX_VOICES = 16; // Polyphonie: 16 gleichzeitige Stimmen
+        let activeVoices = [];
+        
+        // Sequencer
+        let isPlaying = false;
+        let currentStep = 0;
+        let sequencerInterval;
+        const steps = [];
+        
+        // Scales Definition
+        const scales = {
+            chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor: [0, 2, 3, 5, 7, 8, 10],
+            dorian: [0, 2, 3, 5, 7, 9, 10],
+            phrygian: [0, 1, 3, 5, 7, 8, 10],
+            lydian: [0, 2, 4, 6, 7, 9, 11],
+            mixolydian: [0, 2, 4, 5, 7, 9, 10],
+            pentatonic: [0, 2, 4, 7, 9],
+            blues: [0, 3, 5, 6, 7, 10]
+        };
+        
+        // Initialize
+        function init() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Master chain
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.3;
+            
+            // Filter
+            filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 1500;
+            filter.Q.value = 10;
+            
+            // Distortion
+            distortionNode = audioCtx.createWaveShaper();
+            distortionNode.curve = makeDistortionCurve(0);
+            
+            // Delay
+            delayNode = audioCtx.createDelay();
+            delayNode.delayTime.value = 0.25;
+            delayFeedback = audioCtx.createGain();
+            delayFeedback.gain.value = 0.3;
+            
+            // Reverb (simple convolver)
+            convolver = audioCtx.createConvolver();
+            createReverb();
+            
+            dryGain = audioCtx.createGain();
+            wetGain = audioCtx.createGain();
+            dryGain.gain.value = 0.8;
+            wetGain.gain.value = 0.2;
+            
+            // Connect effects chain
+            filter.connect(distortionNode);
+            
+            // Delay routing
+            distortionNode.connect(delayNode);
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            
+            // Reverb routing (parallel)
+            distortionNode.connect(dryGain);
+            distortionNode.connect(convolver);
+            convolver.connect(wetGain);
+            
+            delayNode.connect(dryGain);
+            delayNode.connect(convolver);
+            
+            dryGain.connect(masterGain);
+            wetGain.connect(masterGain);
+            
+            masterGain.connect(audioCtx.destination);
+            
+            setupControls();
+            createSequencer();
+            
+            // Voice counter update interval
+            setInterval(updateVoiceCounter, 100);
+        }
+        
+        // Distortion curve
+        function makeDistortionCurve(amount) {
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            const deg = Math.PI / 180;
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+            }
+            return curve;
+        }
+        
+        // Create reverb impulse response
+        function createReverb() {
+            const rate = audioCtx.sampleRate;
+            const length = rate * 2;
+            const impulse = audioCtx.createBuffer(2, length, rate);
+            const impulseL = impulse.getChannelData(0);
+            const impulseR = impulse.getChannelData(1);
+            
+            for (let i = 0; i < length; i++) {
+                impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2);
+                impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2);
+            }
+            
+            convolver.buffer = impulse;
+        }
+        
+        // Morphing waveform generator
+        function createMorphedWaveform(type, morphValue) {
+            // morphValue: 0-33 = sine, 34-66 = triangle, 67-100 = sawtooth
+            const osc = audioCtx.createOscillator();
+            
+            if (morphValue <= 33) {
+                osc.type = 'sine';
+            } else if (morphValue <= 66) {
+                osc.type = 'triangle';
+            } else {
+                osc.type = 'sawtooth';
+            }
+            
+            return osc;
+        }
+        
+        function getWaveformName(value) {
+            if (value <= 33) return 'Sinus';
+            if (value <= 66) return 'Dreieck';
+            return 'Sägezahn';
+        }
+        
+        // Voice Management Functions
+        function cleanupOldVoices() {
+            const now = audioCtx.currentTime;
+            activeVoices = activeVoices.filter(voice => {
+                // Voice behält sich selbst, solange sie noch nicht abgelaufen ist
+                return voice.endTime > now;
+            });
+            updateVoiceCounter();
+        }
+        
+        function updateVoiceCounter() {
+            const counter = document.getElementById('voiceCount');
+            if (counter) {
+                counter.textContent = activeVoices.length;
+                
+                // Farbcodierung basierend auf Auslastung
+                if (activeVoices.length >= MAX_VOICES) {
+                    counter.style.color = '#ff0000'; // Rot wenn voll
+                } else if (activeVoices.length >= MAX_VOICES * 0.7) {
+                    counter.style.color = '#ffff00'; // Gelb wenn über 70%
+                } else {
+                    counter.style.color = '#00ff00'; // Grün normal
+                }
+            }
+        }
+        
+        function stopOldestVoice() {
+            if (activeVoices.length === 0) return;
+            
+            // Finde die Voice, die am weitesten in der Release-Phase ist
+            // oder die älteste Voice, falls keine in Release ist
+            let oldestVoice = activeVoices[0];
+            const now = audioCtx.currentTime;
+            
+            for (let voice of activeVoices) {
+                if (voice.noteOffTime < oldestVoice.noteOffTime) {
+                    oldestVoice = voice;
+                }
+            }
+            
+            // Entferne die Voice aus der Liste (wird automatisch aufgeräumt)
+            const index = activeVoices.indexOf(oldestVoice);
+            if (index > -1) {
+                activeVoices.splice(index, 1);
+            }
+        }
+        
+        // Play note with ADSR envelope, accent support, and voice management
+        function playNote(frequency, duration = 0.15, accent = false) {
+            if (!audioCtx) init();
+            
+            // Cleanup beendete Voices
+            cleanupOldVoices();
+            
+            // Wenn zu viele Voices aktiv sind, stoppe die älteste
+            if (activeVoices.length >= MAX_VOICES) {
+                stopOldestVoice();
+            }
+            
+            const osc1Wave = parseInt(document.getElementById('osc1Wave').value);
+            const osc2Wave = parseInt(document.getElementById('osc2Wave').value);
+            const osc1Vol = parseInt(document.getElementById('osc1Vol').value) / 100;
+            const osc2Vol = parseInt(document.getElementById('osc2Vol').value) / 100;
+            const osc2Detune = parseInt(document.getElementById('osc2Detune').value);
+            
+            // ADSR parameters
+            const attack = parseFloat(document.getElementById('attack').value);
+            const decay = parseFloat(document.getElementById('decay').value);
+            const sustain = parseFloat(document.getElementById('sustain').value) / 100;
+            const release = parseFloat(document.getElementById('release').value);
+            
+            // Accent parameters
+            const accentAmount = parseFloat(document.getElementById('accentAmount').value) / 100;
+            const accentMultiplier = accent ? 1 + accentAmount : 1;
+            
+            const now = audioCtx.currentTime;
+            const noteOffTime = now + duration;
+            const endTime = noteOffTime + release + 0.1; // Extra Puffer
+            
+            // Create voice object
+            const voice = {
+                noteOffTime: noteOffTime,
+                endTime: endTime,
+                oscillators: [],
+                gains: []
+            };
+            
+            // Oscillator 1
+            const osc1 = createMorphedWaveform('osc1', osc1Wave);
+            const osc1Gain = audioCtx.createGain();
+            osc1.frequency.value = frequency;
+            osc1Gain.gain.value = 0; // Start at 0 to avoid clicks
+            osc1.connect(osc1Gain);
+            
+            // Oscillator 2
+            const osc2 = createMorphedWaveform('osc2', osc2Wave);
+            const osc2Gain = audioCtx.createGain();
+            osc2.frequency.value = frequency;
+            osc2.detune.value = osc2Detune;
+            osc2Gain.gain.value = 0; // Start at 0 to avoid clicks
+            osc2.connect(osc2Gain);
+            
+            // Calculate peak volumes with accent
+            const osc1Peak = osc1Vol * 0.3 * accentMultiplier;
+            const osc2Peak = osc2Vol * 0.3 * accentMultiplier;
+            
+            // ADSR Envelope for amplitude
+            // Attack
+            osc1Gain.gain.setValueAtTime(0, now);
+            osc1Gain.gain.linearRampToValueAtTime(osc1Peak, now + attack);
+            osc2Gain.gain.setValueAtTime(0, now);
+            osc2Gain.gain.linearRampToValueAtTime(osc2Peak, now + attack);
+            
+            // Decay to sustain
+            const sustainLevel1 = osc1Peak * sustain;
+            const sustainLevel2 = osc2Peak * sustain;
+            osc1Gain.gain.linearRampToValueAtTime(sustainLevel1, now + attack + decay);
+            osc2Gain.gain.linearRampToValueAtTime(sustainLevel2, now + attack + decay);
+            
+            // Hold sustain
+            osc1Gain.gain.setValueAtTime(sustainLevel1, noteOffTime);
+            osc2Gain.gain.setValueAtTime(sustainLevel2, noteOffTime);
+            
+            // Release - WICHTIG: Lässt die Note sanft ausklingen
+            osc1Gain.gain.linearRampToValueAtTime(0, noteOffTime + release);
+            osc2Gain.gain.linearRampToValueAtTime(0, noteOffTime + release);
+            
+            // Filter envelope with accent
+            const envAmount = parseFloat(document.getElementById('envAmount').value) * accentMultiplier;
+            const cutoff = parseFloat(document.getElementById('cutoff').value);
+            
+            filter.frequency.setValueAtTime(cutoff + envAmount, now);
+            filter.frequency.exponentialRampToValueAtTime(Math.max(cutoff, 50), now + decay);
+            
+            // Connect to filter
+            osc1Gain.connect(filter);
+            osc2Gain.connect(filter);
+            
+            // Start oscillators
+            osc1.start(now);
+            osc2.start(now);
+            
+            // Stop oscillators NACH der kompletten Release-Phase
+            osc1.stop(endTime);
+            osc2.stop(endTime);
+            
+            // Speichere Voice-Referenzen
+            voice.oscillators = [osc1, osc2];
+            voice.gains = [osc1Gain, osc2Gain];
+            
+            // Füge Voice zur aktiven Liste hinzu
+            activeVoices.push(voice);
+            updateVoiceCounter();
+            
+            // Automatisches Cleanup nach Ablauf
+            setTimeout(() => {
+                const index = activeVoices.indexOf(voice);
+                if (index > -1) {
+                    activeVoices.splice(index, 1);
+                    updateVoiceCounter();
+                }
+            }, (endTime - now) * 1000);
+        }
+        
+        // Frequency calculation
+        function noteToFreq(note) {
+            return 440 * Math.pow(2, (note - 69) / 12);
+        }
+        
+        // Get notes in scale
+        function getNotesInScale() {
+            const scale = document.getElementById('scale').value;
+            const rootNote = parseInt(document.getElementById('rootNote').value);
+            const scaleIntervals = scales[scale];
+            const notes = [];
+            
+            // Generate 3 octaves
+            for (let octave = 2; octave <= 4; octave++) {
+                for (let interval of scaleIntervals) {
+                    const midiNote = (octave * 12) + rootNote + interval;
+                    notes.push(midiNote);
+                }
+            }
+            
+            return notes.sort((a, b) => a - b);
+        }
+        
+        // Create sequencer UI
+        function createSequencer() {
+            const seq1 = document.getElementById('sequencer1');
+            const seq2 = document.getElementById('sequencer2');
+            
+            for (let i = 0; i < 32; i++) {
+                const step = document.createElement('div');
+                step.className = 'step';
+                step.innerHTML = `
+                    <div class="step-number">${i + 1}</div>
+                    <select class="note-select" id="note${i}">
+                        <option value="">-</option>
+                    </select>
+                    <div class="accent-check">
+                        <input type="checkbox" id="accent${i}">
+                        <label for="accent${i}" style="font-size: 0.65em; color: #ff6600;">ACC</label>
+                    </div>
+                `;
+                
+                step.onclick = function(e) {
+                    if (e.target.tagName !== 'SELECT' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
+                        this.classList.toggle('active');
+                    }
+                };
+                
+                // Update visual state when accent is toggled
+                const accentCheckbox = step.querySelector(`#accent${i}`);
+                accentCheckbox.onchange = function() {
+                    if (this.checked) {
+                        step.classList.add('accent');
+                    } else {
+                        step.classList.remove('accent');
+                    }
+                };
+                
+                if (i < 16) {
+                    seq1.appendChild(step);
+                } else {
+                    seq2.appendChild(step);
+                }
+                
+                steps.push(step);
+            }
+            
+            updateNoteSelects();
+        }
+        
+        // Update note selects based on scale
+        function updateNoteSelects() {
+            const notes = getNotesInScale();
+            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            
+            for (let i = 0; i < 32; i++) {
+                const select = document.getElementById(`note${i}`);
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">-</option>';
+                
+                notes.forEach(note => {
+                    const octave = Math.floor(note / 12);
+                    const noteName = noteNames[note % 12];
+                    const option = document.createElement('option');
+                    option.value = note;
+                    option.textContent = `${noteName}${octave}`;
+                    select.appendChild(option);
+                });
+                
+                if (currentValue) select.value = currentValue;
+            }
+        }
+        
+        // Sequencer playback
+        function togglePlay() {
+            if (!audioCtx) init();
+            
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playBtn');
+            const indicator = document.getElementById('playIndicator');
+            
+            if (isPlaying) {
+                btn.textContent = '⏸️ PAUSE';
+                indicator.classList.add('active');
+                startSequencer();
+            } else {
+                btn.textContent = '▶️ PLAY';
+                indicator.classList.remove('active');
+                clearInterval(sequencerInterval);
+            }
+        }
+        
+        function startSequencer() {
+            const tempo = parseInt(document.getElementById('tempo').value);
+            const stepTime = (60 / tempo) * 1000 / 2; // 16th notes
+            
+            sequencerInterval = setInterval(() => {
+                playStep(currentStep);
+                currentStep = (currentStep + 1) % 32;
+            }, stepTime);
+        }
+        
+        function playStep(index) {
+            // Remove previous playing indicator
+            steps.forEach(s => s.classList.remove('playing'));
+            
+            // Add playing indicator
+            steps[index].classList.add('playing');
+            
+            // Play note if step is active
+            if (steps[index].classList.contains('active')) {
+                const noteSelect = document.getElementById(`note${index}`);
+                const accentCheckbox = document.getElementById(`accent${index}`);
+                const midiNote = parseInt(noteSelect.value);
+                const isAccent = accentCheckbox.checked;
+                
+                if (midiNote) {
+                    const freq = noteToFreq(midiNote);
+                    playNote(freq, 0.15, isAccent);
+                }
+            }
+        }
+        
+        function stopSequencer() {
+            isPlaying = false;
+            currentStep = 0;
+            clearInterval(sequencerInterval);
+            document.getElementById('playBtn').textContent = '▶️ PLAY';
+            document.getElementById('playIndicator').classList.remove('active');
+            steps.forEach(s => s.classList.remove('playing'));
+        }
+        
+        // Randomizers
+        function randomizeSynth() {
+            document.getElementById('osc1Wave').value = Math.random() * 100;
+            document.getElementById('osc2Wave').value = Math.random() * 100;
+            document.getElementById('osc1Vol').value = 50 + Math.random() * 50;
+            document.getElementById('osc2Vol').value = 30 + Math.random() * 70;
+            document.getElementById('osc2Detune').value = -30 + Math.random() * 60;
+            document.getElementById('cutoff').value = 200 + Math.random() * 4000;
+            document.getElementById('resonance').value = Math.random() * 25;
+            document.getElementById('envAmount').value = Math.random() * 4000;
+            document.getElementById('attack').value = 0.001 + Math.random() * 0.05;
+            document.getElementById('decay').value = 0.1 + Math.random() * 1;
+            document.getElementById('sustain').value = 20 + Math.random() * 60;
+            document.getElementById('release').value = 0.01 + Math.random() * 0.5;
+            document.getElementById('distortion').value = Math.random() * 60;
+            document.getElementById('delayTime').value = Math.random();
+            document.getElementById('delayFeedback').value = Math.random() * 70;
+            document.getElementById('reverb').value = Math.random() * 80;
+            document.getElementById('accentAmount').value = Math.random() * 100;
+            
+            updateAllDisplays();
+        }
+        
+        function randomizeSequencer() {
+            const notes = getNotesInScale();
+            if (notes.length === 0) return;
+            
+            // Teile Noten in Bass (untere Hälfte) und höhere Noten
+            const midPoint = Math.floor(notes.length / 2);
+            const bassNotes = notes.slice(0, midPoint);
+            const highNotes = notes.slice(midPoint);
+            
+            // Klassische Acid-Pattern Charakteristiken
+            const density = 0.55 + Math.random() * 0.15; // 55-70% aktive Steps
+            
+            for (let i = 0; i < 32; i++) {
+                const beat = i % 16; // Position im 16er Pattern
+                const isDownbeat = beat % 4 === 0; // Haupt-Beats (1, 5, 9, 13)
+                const isOffbeat = beat % 2 === 1; // Offbeats
+                
+                // Höhere Wahrscheinlichkeit für Downbeats
+                let activeProbability = density;
+                if (isDownbeat) activeProbability += 0.2;
+                if (isOffbeat) activeProbability += 0.1;
+                
+                if (Math.random() < activeProbability) {
+                    steps[i].classList.add('active');
+                    
+                    // 70% Bass-Noten, 30% höhere Noten für typischen Acid-Sound
+                    const useBass = Math.random() < 0.7;
+                    const notePool = useBass ? bassNotes : highNotes;
+                    const randomNote = notePool[Math.floor(Math.random() * notePool.length)];
+                    document.getElementById(`note${i}`).value = randomNote;
+
+                    // Accent-Pattern: Hauptbeats und einige synkopierte Stellen
+                    const accentCheckbox = document.getElementById(`accent${i}`);
+                    let accentProbability = 0;
+                    
+                    if (isDownbeat) {
+                        accentProbability = 0.6; // 60% auf Hauptbeats
+                    } else if (beat % 4 === 2) {
+                        accentProbability = 0.3; // 30% auf "und"-Zählzeiten
+                    } else if (isOffbeat) {
+                        accentProbability = 0.15; // 15% auf anderen Offbeats
+                    }
+                    
+                    if (Math.random() < accentProbability) {
+                        accentCheckbox.checked = true;
+                        steps[i].classList.add('accent');
+                    } else {
+                        accentCheckbox.checked = false;
+                        steps[i].classList.remove('accent');
+                    }
+                } else {
+                    steps[i].classList.remove('active');
+                    steps[i].classList.remove('accent');
+                    document.getElementById(`note${i}`).value = '';
+                    document.getElementById(`accent${i}`).checked = false;
+                }
+            }
+        }
+
+        function clearSequencer() {
+            for (let i = 0; i < 32; i++) {
+                steps[i].classList.remove('active');
+                steps[i].classList.remove('accent');
+                document.getElementById(`note${i}`).value = '';
+                document.getElementById(`accent${i}`).checked = false;
+            }
+        }
+        
+        // Control setup
+        function setupControls() {
+            // Oscillators
+            document.getElementById('osc1Wave').oninput = function() {
+                document.getElementById('osc1WaveVal').textContent = getWaveformName(this.value);
+            };
+            
+            document.getElementById('osc2Wave').oninput = function() {
+                document.getElementById('osc2WaveVal').textContent = getWaveformName(this.value);
+            };
+            
+            document.getElementById('osc1Vol').oninput = function() {
+                document.getElementById('osc1VolVal').textContent = this.value + '%';
+            };
+            
+            document.getElementById('osc2Vol').oninput = function() {
+                document.getElementById('osc2VolVal').textContent = this.value + '%';
+            };
+            
+            document.getElementById('osc2Detune').oninput = function() {
+                document.getElementById('osc2DetuneVal').textContent = this.value + ' ct';
+            };
+            
+            // ADSR
+            document.getElementById('attack').oninput = function() {
+                document.getElementById('attackVal').textContent = parseFloat(this.value).toFixed(3) + ' s';
+            };
+            
+            document.getElementById('decay').oninput = function() {
+                document.getElementById('decayVal').textContent = parseFloat(this.value).toFixed(2) + ' s';
+            };
+            
+            document.getElementById('sustain').oninput = function() {
+                document.getElementById('sustainVal').textContent = this.value + '%';
+            };
+            
+            document.getElementById('release').oninput = function() {
+                document.getElementById('releaseVal').textContent = parseFloat(this.value).toFixed(2) + ' s';
+            };
+            
+            // Filter
+            document.getElementById('cutoff').oninput = function() {
+                filter.frequency.value = this.value;
+                document.getElementById('cutoffVal').textContent = this.value + ' Hz';
+            };
+            
+            document.getElementById('resonance').oninput = function() {
+                filter.Q.value = this.value;
+                document.getElementById('resonanceVal').textContent = this.value;
+            };
+            
+            document.getElementById('envAmount').oninput = function() {
+                document.getElementById('envAmountVal').textContent = this.value;
+            };
+            
+            document.getElementById('accentAmount').oninput = function() {
+                document.getElementById('accentAmountVal').textContent = this.value + '%';
+            };
+            
+            // Effects
+            document.getElementById('distortion').oninput = function() {
+                distortionNode.curve = makeDistortionCurve(this.value);
+                document.getElementById('distortionVal').textContent = this.value;
+            };
+            
+            document.getElementById('delayTime').oninput = function() {
+                delayNode.delayTime.value = this.value;
+                document.getElementById('delayTimeVal').textContent = parseFloat(this.value).toFixed(2) + ' s';
+            };
+            
+            document.getElementById('delayFeedback').oninput = function() {
+                delayFeedback.gain.value = this.value / 100;
+                document.getElementById('delayFeedbackVal').textContent = this.value + '%';
+            };
+            
+            document.getElementById('reverb').oninput = function() {
+                const dry = 1 - (this.value / 100);
+                const wet = this.value / 100;
+                dryGain.gain.value = dry;
+                wetGain.gain.value = wet;
+                document.getElementById('reverbVal').textContent = this.value + '%';
+            };
+            
+            // Tempo
+            document.getElementById('tempo').oninput = function() {
+                document.getElementById('tempoVal').textContent = this.value + ' BPM';
+                if (isPlaying) {
+                    stopSequencer();
+                    togglePlay();
+                }
+            };
+            
+            // Scale change
+            document.getElementById('scale').onchange = updateNoteSelects;
+            document.getElementById('rootNote').onchange = updateNoteSelects;
+        }
+        
+        function updateAllDisplays() {
+            document.getElementById('osc1WaveVal').textContent = getWaveformName(document.getElementById('osc1Wave').value);
+            document.getElementById('osc2WaveVal').textContent = getWaveformName(document.getElementById('osc2Wave').value);
+            document.getElementById('osc1VolVal').textContent = document.getElementById('osc1Vol').value + '%';
+            document.getElementById('osc2VolVal').textContent = document.getElementById('osc2Vol').value + '%';
+            document.getElementById('osc2DetuneVal').textContent = document.getElementById('osc2Detune').value + ' ct';
+            
+            document.getElementById('attackVal').textContent = parseFloat(document.getElementById('attack').value).toFixed(3) + ' s';
+            document.getElementById('decayVal').textContent = parseFloat(document.getElementById('decay').value).toFixed(2) + ' s';
+            document.getElementById('sustainVal').textContent = document.getElementById('sustain').value + '%';
+            document.getElementById('releaseVal').textContent = parseFloat(document.getElementById('release').value).toFixed(2) + ' s';
+            
+            document.getElementById('cutoffVal').textContent = document.getElementById('cutoff').value + ' Hz';
+            document.getElementById('resonanceVal').textContent = document.getElementById('resonance').value;
+            document.getElementById('envAmountVal').textContent = document.getElementById('envAmount').value;
+            document.getElementById('accentAmountVal').textContent = document.getElementById('accentAmount').value + '%';
+            
+            document.getElementById('distortionVal').textContent = document.getElementById('distortion').value;
+            document.getElementById('delayTimeVal').textContent = parseFloat(document.getElementById('delayTime').value).toFixed(2) + ' s';
+            document.getElementById('delayFeedbackVal').textContent = document.getElementById('delayFeedback').value + '%';
+            document.getElementById('reverbVal').textContent = document.getElementById('reverb').value + '%';
+            
+            // Apply values
+            filter.frequency.value = document.getElementById('cutoff').value;
+            filter.Q.value = document.getElementById('resonance').value;
+            distortionNode.curve = makeDistortionCurve(document.getElementById('distortion').value);
+            delayNode.delayTime.value = document.getElementById('delayTime').value;
+            delayFeedback.gain.value = document.getElementById('delayFeedback').value / 100;
+            const reverbVal = document.getElementById('reverb').value;
+            dryGain.gain.value = 1 - (reverbVal / 100);
+            wetGain.gain.value = reverbVal / 100;
+        }
+        
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

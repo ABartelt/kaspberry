@@ -1,0 +1,54 @@
+:root {
+  /* Primary amber — warmer, richer than pure #ffaa00 */
+  --amber: #eda000;
+  --amber-bright: #ffc830;
+  --amber-dim: #6b4800;
+  --amber-glow: rgba(237, 160, 0, 0.35);
+  --orange: #e08020;
+  --red: #d83030;
+  --cyan: #00c8c8;
+  --green: #00d870;
+  --blue: #2088dd;
+  --magenta: #c040d0;
+  --noise-orange: #d85500;
+
+  /* Background scale — deeper blacks for more contrast */
+  --bg-dark: #111;
+  --bg-darker: #0a0a0a;
+  --bg-darkest: #050505;
+  --bg-black: #020202;
+
+  /* Tinted backgrounds */
+  --bg-green: #001e00;
+  --bg-green-dim: #001200;
+  --bg-green-highlight: #002a00;
+  --bg-red: #200000;
+  --bg-red-highlight: #3a0000;
+  --bg-blue: #140028;
+  --bg-yellow: #1e1600;
+  --bg-cyan: #001e1e;
+  --bg-orange: #1e0e00;
+
+  /* Borders */
+  --border-dim: #1e1e1e;
+  --border-panel: #282828;
+  --border-subtle: #1a1a1a;
+
+  /* Text */
+  --text-dim: #706050;
+  --text-dimmer: #504030;
+
+  /* Font — DejaVu Sans Mono is on Raspberry Pi OS, far nicer than Courier */
+  --font-mono: 'DejaVu Sans Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --gap-xs: 3px;
+  --gap-sm: 6px;
+  --gap-md: 10px;
+  --gap-lg: 14px;
+
+  /* Panel */
+  --panel-radius: 5px;
+  --panel-border: 1px solid #222;
+  --panel-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
