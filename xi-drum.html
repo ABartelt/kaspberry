@@ -884,6 +884,28 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, finite(v, lo)));
 const setPV = (param, v, fb=0) => { try { param.value = Number.isFinite(v) ? v : fb; } catch(e) {} };
 const setPT = (param, v, ct, tau, fb=0) => { try { param.setTargetAtTime(Number.isFinite(v) ? v : fb, ct, tau); } catch(e) {} };
 
+// CSS theme constants — read once at startup, never change at runtime.
+// Reading these per-frame inside rAF loops triggers full document style recalcs (~600/s).
+const _rootStyle = getComputedStyle(document.documentElement);
+const HUE = parseFloat(_rootStyle.getPropertyValue('--hue')) || 28;
+const HUE_SAT = parseFloat(_rootStyle.getPropertyValue('--hue-sat')) || 30;
+
+// Filter-response curve cache (used by drawBG). Recomputed only when cutoff,
+// Q, filter type, or canvas size change — invalidation via the sentinel comparison
+// at the top of the recompute block, so any param change naturally triggers a refill.
+const _FREQ_N = 96;
+const _FREQ_LOG_MIN = Math.log(40);
+const _FREQ_LOG_MAX = Math.log(18000);
+const _freqXs = new Float32Array(_FREQ_N);
+const _freqYs = new Float32Array(_FREQ_N);
+let _f_cutoff = NaN, _f_Q = NaN, _f_ftype = '', _f_W = -1, _f_H = -1;
+
+// Smaller scratch buffers shared across the per-instrument filter draws (N=64).
+// JS is single-threaded so the rAF callbacks never overlap — safe to share.
+const _IFREQ_N = 64;
+const _iFreqXs = new Float32Array(_IFREQ_N);
+const _iFreqYs = new Float32Array(_IFREQ_N);
+
 // ===== Drum kit definitions =====
 // Each instrument has: name, code, defaults, baseFreq (for tone-mode), pitchDrop (semitones over decay).
 // filterType determines whether the per-instrument BiquadFilter is LP (warmer) or HP (brighter, more "snap").
@@ -2737,8 +2759,7 @@ bg.addEventListener('pointercancel', () => { xyEngaged = false; });
 function drawBG() {
   if (!bctx) { requestAnimationFrame(drawBG); return; }
   const W = bgW, H = bgH, p = synth.params;
-  const huevar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue')) || 28;
-  const huesat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue-sat')) || 30;
+  const huevar = HUE, huesat = HUE_SAT;
   bctx.clearRect(0, 0, W, H);
   // bg
   const g = bctx.createLinearGradient(0, 0, 0, H);
@@ -2753,44 +2774,45 @@ function drawBG() {
   for (let y = 0; y < H; y += 28) { bctx.moveTo(0, y); bctx.lineTo(W, y); }
   bctx.stroke();
 
-  // Frequency response curve
+  // Frequency response curve — cached. Recomputed only when filter params or
+  // canvas size change. ~95 % less Math/alloc cost in the steady state.
   const cutoff = clamp(p.filterCutoff, 40, 18000);
   const Q = clamp(p.filterRes, 0.0001, 30);
   const ftype = p.filterType || 'lowpass';
-  const minF = 40, maxF = 18000;
-  const logMin = Math.log(minF), logMax = Math.log(maxF);
-  const N_FREQ = 96;
-  const xs = new Float32Array(N_FREQ), ys = new Float32Array(N_FREQ);
-  for (let i = 0; i < N_FREQ; i++) {
-    const t = i / (N_FREQ - 1);
-    const f = Math.exp(logMin + t * (logMax - logMin));
-    const w = f / cutoff;
-    let dB = 0;
-    if (ftype === 'lowpass') {
-      const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
-      dB = -20 * Math.log10(Math.max(0.0001, denom));
-    } else if (ftype === 'highpass') {
-      const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
-      dB = -20 * Math.log10(Math.max(0.0001, denom)) + 40 * Math.log10(w);
-    } else if (ftype === 'bandpass') {
-      const denom = Math.sqrt(1 + Math.pow(Q * (w - 1/w), 2));
-      dB = -20 * Math.log10(Math.max(0.0001, denom));
-    } else if (ftype === 'notch') {
-      const NEUTRAL = 6, MAX_DB = 24;
-      let gainDB;
-      if (Q >= NEUTRAL) gainDB = ((Q - NEUTRAL) / (20 - NEUTRAL)) * MAX_DB;
-      else              gainDB = ((Q - NEUTRAL) / (NEUTRAL - 0.1)) * MAX_DB;
-      const A = Math.pow(10, gainDB / 40);
-      const Qbw = 1.5;
-      const wsq = 1 - w*w;
-      const numerSq = wsq*wsq + Math.pow(A * w / Qbw, 2);
-      const denomSq = wsq*wsq + Math.pow(w / (Qbw * A), 2);
-      dB = 10 * Math.log10(Math.max(0.0001, numerSq / Math.max(0.0001, denomSq)));
+  if (cutoff !== _f_cutoff || Q !== _f_Q || ftype !== _f_ftype || W !== _f_W || H !== _f_H) {
+    for (let i = 0; i < _FREQ_N; i++) {
+      const t = i / (_FREQ_N - 1);
+      const f = Math.exp(_FREQ_LOG_MIN + t * (_FREQ_LOG_MAX - _FREQ_LOG_MIN));
+      const w = f / cutoff;
+      let dB = 0;
+      if (ftype === 'lowpass') {
+        const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
+        dB = -20 * Math.log10(Math.max(0.0001, denom));
+      } else if (ftype === 'highpass') {
+        const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
+        dB = -20 * Math.log10(Math.max(0.0001, denom)) + 40 * Math.log10(w);
+      } else if (ftype === 'bandpass') {
+        const denom = Math.sqrt(1 + Math.pow(Q * (w - 1/w), 2));
+        dB = -20 * Math.log10(Math.max(0.0001, denom));
+      } else if (ftype === 'notch') {
+        const NEUTRAL = 6, MAX_DB = 24;
+        let gainDB;
+        if (Q >= NEUTRAL) gainDB = ((Q - NEUTRAL) / (20 - NEUTRAL)) * MAX_DB;
+        else              gainDB = ((Q - NEUTRAL) / (NEUTRAL - 0.1)) * MAX_DB;
+        const A = Math.pow(10, gainDB / 40);
+        const Qbw = 1.5;
+        const wsq = 1 - w*w;
+        const numerSq = wsq*wsq + Math.pow(A * w / Qbw, 2);
+        const denomSq = wsq*wsq + Math.pow(w / (Qbw * A), 2);
+        dB = 10 * Math.log10(Math.max(0.0001, numerSq / Math.max(0.0001, denomSq)));
+      }
+      const ny = clamp((dB + 42) / 72, 0, 1);
+      _freqXs[i] = t * W;
+      _freqYs[i] = H - ny * H;
     }
-    const ny = clamp((dB + 42) / 72, 0, 1);
-    xs[i] = t * W;
-    ys[i] = H - ny * H;
+    _f_cutoff = cutoff; _f_Q = Q; _f_ftype = ftype; _f_W = W; _f_H = H;
   }
+  const xs = _freqXs, ys = _freqYs, N_FREQ = _FREQ_N;
   // Fill
   bctx.beginPath();
   bctx.moveTo(xs[0], ys[0]);
@@ -2943,8 +2965,7 @@ function setupInstFilterPreview() {
     const ip = synth.instParams[currentInst];
     if (!ip) { requestAnimationFrame(draw); return; }
 
-    const huevar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue')) || 28;
-    const huesat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue-sat')) || 30;
+    const huevar = HUE, huesat = HUE_SAT;
 
     ctx.clearRect(0, 0, cw, ch);
     // bg
@@ -2963,36 +2984,31 @@ function setupInstFilterPreview() {
     const Q = clamp(ip.res, 0.0001, 30);
     const ftype = inst.filterType || 'lowpass';
     const minF = 40, maxF = 18000;
-    const logMin = Math.log(minF), logMax = Math.log(maxF);
-    const N = 64;
-    const xs = new Float32Array(N), ys = new Float32Array(N);
+    const logMin = _FREQ_LOG_MIN, logMax = _FREQ_LOG_MAX;
+    const N = _IFREQ_N;
+    const xs = _iFreqXs, ys = _iFreqYs;
 
-    function sampleResp(cutHz) {
-      const samples = [];
-      for (let i = 0; i < N; i++) {
-        const t = i / (N - 1);
-        const f = Math.exp(logMin + t * (logMax - logMin));
-        const w = f / cutHz;
-        let dB = 0;
-        if (ftype === 'lowpass') {
-          const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
-          dB = -20 * Math.log10(Math.max(0.0001, denom));
-        } else if (ftype === 'highpass') {
-          const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
-          dB = -20 * Math.log10(Math.max(0.0001, denom)) + 40 * Math.log10(w);
-        } else if (ftype === 'bandpass') {
-          const denom = Math.sqrt(1 + Math.pow(Q * (w - 1/w), 2));
-          dB = -20 * Math.log10(Math.max(0.0001, denom));
-        }
-        const ny = clamp((dB + 42) / 72, 0, 1);
-        samples.push({x: t * cw, y: ch - ny * ch});
+    // Frequency response curve — write directly into pre-allocated scratch arrays.
+    // (No dirty-flag here because the LFO indicator below animates per-frame.)
+    for (let i = 0; i < N; i++) {
+      const t = i / (N - 1);
+      const f = Math.exp(logMin + t * (logMax - logMin));
+      const w = f / cutoff;
+      let dB = 0;
+      if (ftype === 'lowpass') {
+        const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
+        dB = -20 * Math.log10(Math.max(0.0001, denom));
+      } else if (ftype === 'highpass') {
+        const denom = Math.sqrt(Math.pow(1 - w*w, 2) + Math.pow(w/Q, 2));
+        dB = -20 * Math.log10(Math.max(0.0001, denom)) + 40 * Math.log10(w);
+      } else if (ftype === 'bandpass') {
+        const denom = Math.sqrt(1 + Math.pow(Q * (w - 1/w), 2));
+        dB = -20 * Math.log10(Math.max(0.0001, denom));
       }
-      return samples;
+      const ny = clamp((dB + 42) / 72, 0, 1);
+      xs[i] = t * cw;
+      ys[i] = ch - ny * ch;
     }
-
-    // Static curve (at the user-set cutoff)
-    const baseSamples = sampleResp(cutoff);
-    for (let i = 0; i < N; i++) { xs[i] = baseSamples[i].x; ys[i] = baseSamples[i].y; }
     // Fill
     ctx.beginPath();
     ctx.moveTo(xs[0], ys[0]);
@@ -3297,8 +3313,7 @@ function setupInstAdsrPad() {
     const ip = synth.instParams[currentInst];
     if (!ip) { requestAnimationFrame(draw); return; }
 
-    const huevar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue')) || 28;
-    const huesat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue-sat')) || 30;
+    const huevar = HUE, huesat = HUE_SAT;
 
     ctx.clearRect(0, 0, cw, ch);
     // Background
@@ -3565,8 +3580,7 @@ function setupStutterPad() {
 
   function draw() {
     ctx.clearRect(0, 0, cw, ch);
-    const huevar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue')) || 28;
-    const huesat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue-sat')) || 30;
+    const huevar = HUE, huesat = HUE_SAT;
     ctx.fillStyle = `hsla(${huevar}, ${huesat}%, 6%, 1)`;
     ctx.fillRect(0, 0, cw, ch);
     ctx.strokeStyle = `hsla(${huevar}, ${huesat}%, 50%, 0.15)`;
@@ -3856,8 +3870,7 @@ function setupAdsrTouchPad() {
 
   function draw() {
     ctx.clearRect(0, 0, cw, ch);
-    const huevar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue')) || 28;
-    const huesat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hue-sat')) || 30;
+    const huevar = HUE, huesat = HUE_SAT;
     // Background with subtle gradient hinting the axes
     ctx.fillStyle = `hsla(${huevar}, ${huesat}%, 6%, 1)`;
     ctx.fillRect(0, 0, cw, ch);
