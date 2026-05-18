@@ -23,7 +23,7 @@ mkdir -p "$CHROMIUM_DIR/Default"
 sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' "$CHROMIUM_DIR/Default/Preferences" 2>/dev/null || true
 sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' "$CHROMIUM_DIR/Default/Preferences" 2>/dev/null || true
 
-exec chromium-browser \
+exec chromium \
     --kiosk \
     --noerrdialogs \
     --disable-infobars \

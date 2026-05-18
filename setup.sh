@@ -30,7 +30,7 @@ apt-get install -y --no-install-recommends \
     xserver-xorg \
     x11-xserver-utils \
     xinit \
-    chromium-browser \
+    chromium \
     alsa-utils \
     unclutter \
     kbd \
