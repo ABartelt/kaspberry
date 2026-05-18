@@ -6,10 +6,10 @@
 xrandr --output HDMI-1 --mode 1920x1080 --rate 60 2>/dev/null
 sleep 1
 
-# Audio: ALSA-direct to bcm2835 Headphones (card 1, mixer control 'PCM').
+# Audio: ALSA-direct to bcm2835 Headphones (by NAME — index shifts between Pi 3B+ and Pi 4).
 # PulseAudio is not installed in our setup; kill any leftover just in case.
 pulseaudio -k 2>/dev/null || true
-amixer -c 1 sset PCM 100% unmute 2>/dev/null || true
+amixer -c Headphones sset PCM 100% unmute 2>/dev/null || true
 
 xset s off
 xset s noblank
@@ -45,6 +45,6 @@ exec chromium-browser \
     --enable-gpu-rasterization \
     --enable-zero-copy \
     --js-flags="--max-old-space-size=512" \
-    --alsa-output-device=hw:1,0 \
+    --alsa-output-device=hw:CARD=Headphones,DEV=0 \
     --remote-debugging-port=9222 \
     http://127.0.0.1:8080/index.html
