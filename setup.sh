@@ -28,6 +28,7 @@ echo "[1/9] Installing packages..."
 apt-get update -qq
 apt-get install -y --no-install-recommends \
     xserver-xorg \
+    xserver-xorg-legacy \
     x11-xserver-utils \
     xinit \
     chromium \
@@ -36,6 +37,14 @@ apt-get install -y --no-install-recommends \
     kbd \
     python3 \
     git
+
+# Allow non-root users (kiosk) to start Xorg on vt1.
+# xserver-xorg-legacy ships the setuid Xorg.wrap; it reads this config.
+install -d -m 755 /etc/X11
+cat > /etc/X11/Xwrapper.config <<'WRAP'
+allowed_users=anybody
+needs_root_rights=yes
+WRAP
 
 # Make sure pulseaudio is NOT pulled in — we go ALSA-direct.
 apt-get purge -y pulseaudio pulseaudio-utils 2>/dev/null || true
@@ -90,12 +99,16 @@ install -m 755 "$SCRIPT_DIR/scripts/kiosk-x.sh" "$KIOSK_HOME/scripts/kiosk-x.sh"
 install -m 644 "$SCRIPT_DIR/xi-drum.html" "$KIOSK_HOME/app/index.html"
 chown -R "$KIOSK_USER:$KIOSK_USER" "$KIOSK_HOME"
 
-# --- 5. Auto-login on tty1 ---
+# --- 5. tty1 ownership: kiosk.service runs there, no getty ---
+# kiosk.service uses PAMName=login + Xorg on vt1. If getty@tty1 also runs
+# (with or without autologin), both fight for /dev/tty1 and Xorg gets
+# terminated after a few seconds. Mask it out — sshd is our remote shell.
 
-echo "[5/9] Configuring auto-login..."
-mkdir -p /etc/systemd/system/getty@tty1.service.d
-install -m 644 "$SCRIPT_DIR/configs/autologin.conf" \
-    /etc/systemd/system/getty@tty1.service.d/autologin.conf
+echo "[5/9] Disabling getty@tty1 (kiosk owns vt1)..."
+# Remove any prior autologin override (older setup.sh installed one).
+rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf
+rmdir /etc/systemd/system/getty@tty1.service.d 2>/dev/null || true
+systemctl mask getty@tty1 2>/dev/null || true
 
 # --- 6. systemd units ---
 
